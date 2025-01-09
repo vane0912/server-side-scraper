@@ -16,11 +16,11 @@ expressWs(router);
 //}
 router.ws('/echo', (ws, req) => {
     const urls = [
-        {
-            operadora: 'Regio',
-            url: 'https://b2b.regio.travel/login.xhtml?microsite=regioperadora&keepurl=true&url=%2Fhome',
-            funct: regio_func
-        },
+        //{
+        //    operadora: 'Regio',
+        //    url: 'https://b2b.regio.travel/login.xhtml?microsite=regioperadora&keepurl=true&url=%2Fhome',
+        //    funct: regio_func
+        //},
         {
             operadora: 'VTO',
             url: 'https://vtoreservaciones.com/Default.aspx',
