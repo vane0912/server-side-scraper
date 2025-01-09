@@ -14,6 +14,9 @@ expressWs(router);
 //    const results_regio = await azabache_func(url, operadora, client_data)
 //    return results_regio
 //}
+router.get('/', (req, res) => {
+    res.json({ message: 'Scraper Hoteles' })
+})
 router.ws('/echo', (ws, req) => {
     const urls = [
         //{
