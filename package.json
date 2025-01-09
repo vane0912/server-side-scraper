@@ -1,0 +1,20 @@
+{
+  "name": "server_side",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@google-cloud/local-auth": "^2.1.0",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "express-ws": "^5.0.2",
+    "googleapis": "^105.0.0",
+    "puppeteer": "^23.10.4"
+  }
+}
