@@ -7,7 +7,12 @@ function delay(time) {
 async function bedsonline_scrape(url, operadora, client_data){
     const browser = await puppeteer.launch({
         headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        args: ['--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage', // Reduces the need for shared memory
+            '--single-process',        // Reduces multi-process overhead
+            '--disable-gpu',  
+        ]
     });
     const page = await browser.newPage();
     await page.setRequestInterception(true);
