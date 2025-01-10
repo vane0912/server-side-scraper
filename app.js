@@ -3,7 +3,6 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const { createServer } = require('node:http');
 const { Server } = require('socket.io');
-const scraper_hoteles = require('./routes/scraper_hoteles');
 const urls = require('./routes/scraper_hoteles');
 
 const app = express();
@@ -25,20 +24,26 @@ app.get('/', (req, res) => {
 io.on('connection', (socket) => {
     console.log('A user connected');
   
-    socket.on('message', (msg) => {
-        let pendingMessages = urls.length; 
-        let messagesSent = 0;
-        scraper_hoteles.forEach(async (url) =>{
-          const data = JSON.parse(msg);
-          //const results = await scrapePage(url.url, url.operadora, data);
-          const results = await url.funct(url.url, url.operadora, data)
-          io.emit('message', results)
-          messagesSent++;
-          if (messagesSent === pendingMessages) {
-            io.disconnectSockets()
+    socket.on('message', async (msg) => {
+      const data = JSON.parse(msg);
+      let messagesSent = 0;
+        
+      for (const url of urls) {
+          try {
+              const results = await url.funct(url.url, url.operadora, data); // Wait for each URL to complete
+              io.emit('message', results);
+              messagesSent++;
+          } catch (error) {
+              console.error(`Error processing ${url.url}:`, error);
           }
-        })
-    });
+      }
+  
+      // Disconnect sockets after all messages are sent
+      if (messagesSent === urls.length) {
+          io.disconnectSockets();
+      }
+  });
+  
     socket.on('disconnect', () => {
       console.log('A user disconnected');
     });
