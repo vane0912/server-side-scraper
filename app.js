@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const { createServer } = require('node:http');
+const puppeteer = require('puppeteer');
 const { Server } = require('socket.io');
 const urls = require('./routes/scraper_hoteles');
 
@@ -27,10 +28,35 @@ io.on('connection', (socket) => {
     socket.on('message', async (msg) => {
       const data = JSON.parse(msg);
       let messagesSent = 0;
-      
+      const browser = await puppeteer.launch({
+        headless: true,
+        args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-session-crashed-bubble',
+            '--disable-accelerated-2d-canvas',
+            '--no-first-run',
+            '--no-zygote',
+            '--single-process',
+            '--noerrdialogs',
+            '--disable-gpu'
+        ]
+     }
+    );
+      const page = await browser.newPage();
+      await page.setRequestInterception(true);
+      page.on('request', (request) => {
+        const blockedResources = ['image', 'font', 'media'];
+        if (blockedResources.includes(request.resourceType())) {
+            request.abort();
+        } else {
+            request.continue();
+        }
+    });
       for (const url of urls) {
           try {
-              const results = await url.funct(url.url, url.operadora, data); // Wait for each URL to complete
+              const results = await url.funct(page, url.url, url.operadora, data); // Wait for each URL to complete
               if (results.length > 30){
                     const sliced_array = results.slice(0, 30);
                     io.emit('message', sliced_array);
@@ -46,6 +72,7 @@ io.on('connection', (socket) => {
           }
       }
       if (messagesSent === urls.length) {
+          await browser.close();
           io.disconnectSockets();
       }
   });

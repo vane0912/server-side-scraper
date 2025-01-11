@@ -5,27 +5,9 @@ function delay(time) {
     });
 }
 
-async function azabache_scraper(url, operadora, client_data){
-    const browser = await puppeteer.launch({
-        headless: true,
-        args: ['--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage', // Reduces the need for shared memory
-            '--single-process',        // Reduces multi-process overhead
-            '--disable-gpu',  
-        ],
-    });
-    const page = await browser.newPage();
-    await page.setRequestInterception(true);
+async function azabache_scraper(page, url, operadora, client_data){
     const data = []
-    page.on('request', (request) => {
-        const blockedResources = ['image', 'font', 'media'];
-        if (blockedResources.includes(request.resourceType())) {
-            request.abort();
-        } else {
-            request.continue();
-        }
-    });
+    
     await page.goto(url);
     await page.setViewport({width: 1480, height: 1024});
 
@@ -164,10 +146,8 @@ async function azabache_scraper(url, operadora, client_data){
                 return data.push(arrange_data)
             }));
         }
-        await browser.close()
         return data
     }catch(err){
-        await browser.close()
         console.log(err)
         return {'Error': 'Azabache'}
     }

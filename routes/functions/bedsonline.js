@@ -4,27 +4,8 @@ function delay(time) {
         setTimeout(resolve, time)
     });
 }
-async function bedsonline_scrape(url, operadora, client_data){
-    const browser = await puppeteer.launch({
-        headless: true,
-        args: ['--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage', // Reduces the need for shared memory
-            '--single-process',        // Reduces multi-process overhead
-            '--disable-gpu',  
-        ]
-    });
-    const page = await browser.newPage();
-    await page.setRequestInterception(true);
+async function bedsonline_scraper(page, url, operadora, client_data){
     const data = []
-    page.on('request', (request) => {
-        const blockedResources = ['image', 'font', 'media'];
-        if (blockedResources.includes(request.resourceType())) {
-            request.abort();
-        } else {
-            request.continue();
-        }
-    });
     await page.goto(url);
     await page.setViewport({width: 1480, height: 1024});
     try{
@@ -118,13 +99,11 @@ async function bedsonline_scrape(url, operadora, client_data){
                 break;
             }
         }
-        browser.close()
         return data
     }
     catch (err) {
-        await browser.close()
         console.log(err)
         return {'Error': 'Bedsonline'}
     }
 }
-module.exports = bedsonline_scrape
+module.exports = bedsonline_scraper

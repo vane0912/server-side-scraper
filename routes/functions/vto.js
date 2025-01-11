@@ -1,25 +1,6 @@
 const puppeteer = require('puppeteer');
 
-async function vto_scrape(url, operadora, client_data){
-    const browser = await puppeteer.launch({
-        headless: true,
-        args: ['--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage', // Reduces the need for shared memory
-            '--single-process',        // Reduces multi-process overhead
-            '--disable-gpu',  
-        ]
-    });
-    const page = await browser.newPage();
-    await page.setRequestInterception(true);
-    page.on('request', (request) => {
-        const blockedResources = ['image', 'font', 'media'];
-        if (blockedResources.includes(request.resourceType())) {
-            request.abort();
-        } else {
-            request.continue();
-        }
-    });
+async function vto_scrape(page, url, operadora, client_data){
     await page.goto(url);
     await page.setViewport({width: 1480, height: 1024});
     let data = []
@@ -101,11 +82,9 @@ async function vto_scrape(url, operadora, client_data){
             }
             data.push(arrange_data);
         }
-        await browser.close()
         return data
     }
     catch(err){
-        await browser.close()
         console.log(err)
         return {'Error': 'VTO'}
     }
