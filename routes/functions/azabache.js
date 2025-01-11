@@ -1,4 +1,3 @@
-const puppeteer = require('puppeteer');
 function delay(time) {
     return new Promise(function(resolve) { 
         setTimeout(resolve, time)
@@ -7,7 +6,6 @@ function delay(time) {
 
 async function azabache_scraper(page, url, operadora, client_data){
     const data = []
-    
     await page.goto(url);
     await page.setViewport({width: 1480, height: 1024});
 
