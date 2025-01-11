@@ -55,8 +55,8 @@ io.on('connection', (socket) => {
         }
     });
       for (const url of urls) {
-          try {
-              const results = await url.funct(page, url.url, url.operadora, data); // Wait for each URL to complete
+          const results = await url.funct(page, url.url, url.operadora, data);
+          try { 
               if (results.length > 30){
                     const sliced_array = results.slice(0, 30);
                     io.emit('message', sliced_array);
