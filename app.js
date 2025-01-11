@@ -27,18 +27,24 @@ io.on('connection', (socket) => {
     socket.on('message', async (msg) => {
       const data = JSON.parse(msg);
       let messagesSent = 0;
-        
+      
       for (const url of urls) {
           try {
               const results = await url.funct(url.url, url.operadora, data); // Wait for each URL to complete
-              io.emit('message', results);
-              messagesSent++;
+              if (results.length > 30){
+                    const sliced_array = results.slice(0, 30);
+                    io.emit('message', sliced_array);
+                    const final_array = results.slice(30);
+                    io.emit('message', final_array);
+                    messagesSent++;
+              }else{
+                    io.emit('message', results);
+                    messagesSent++;
+              }
           } catch (error) {
               console.error(`Error processing ${url.url}:`, error);
           }
       }
-  
-      // Disconnect sockets after all messages are sent
       if (messagesSent === urls.length) {
           io.disconnectSockets();
       }
