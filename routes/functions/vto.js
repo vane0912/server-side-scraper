@@ -77,7 +77,7 @@ async function vto_scrape(page, url, operadora, client_data){
                 hotel_title: await el.$eval('.booking-item-title', title => title.textContent),
                 score: await el.$$eval('.booking-item-rating ul li .fa-star', element => element.length),
                 hotel_details: 'Desconocido',
-                img_hotel : await el.$eval('.booking-item-img-wrap img', element => element.src),
+                //img_hotel : await el.$eval('.booking-item-img-wrap img', element => element.src),
                 cancelacion: 'Desconocido'
             }
             data.push(arrange_data);

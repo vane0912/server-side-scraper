@@ -64,7 +64,7 @@ async function checkhotel_scraper(page, url, operadora, client_data){
                         score: await text[i].$$eval('.fa-star:not(.hidden-print)', element => element.length),
                         hotel_title: await text[i].$eval('h3', h1 => h1.textContent.trim()),
                         hotel_details: "Desconocido",
-                        img_hotel : await text[i].$eval('.img-responsive', element => element.src),
+                        //img_hotel : await text[i].$eval('.img-responsive', element => element.src),
                         cancelacion: "Desconocido" 
                     }
                     data.push(arrange_data)
@@ -80,7 +80,7 @@ async function checkhotel_scraper(page, url, operadora, client_data){
                     score: await text[i].$$eval('.fa-star:not(.hidden-print)', element => element.length),
                     hotel_title: await text[i].$eval('h3', h1 => h1.textContent.trim()),
                     hotel_details: "Desconocido",
-                    img_hotel : await text[i].$eval('.img-responsive', element => element.src),
+                    //img_hotel : await text[i].$eval('.img-responsive', element => element.src),
                     cancelacion: "Desconocido" 
                 }
                 data.push(arrange_data)
