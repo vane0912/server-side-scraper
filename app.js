@@ -68,6 +68,8 @@ io.on('connection', (socket) => {
                     messagesSent++;
               }
           } catch (error) {
+              io.emit('message', results);
+              messagesSent++;
               console.error(`Error processing ${url.url}:`, error);
           }
       }
