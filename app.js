@@ -5,7 +5,7 @@ const { createServer } = require('node:http');
 const puppeteer = require('puppeteer');
 const { Server } = require('socket.io');
 const urls = require('./routes/scraper_hoteles');
-
+require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 3002; 
 
@@ -29,6 +29,10 @@ io.on('connection', (socket) => {
       const data = JSON.parse(msg);
       let messagesSent = 0;
       const browser = await puppeteer.launch({
+        executablePath:
+            process.env.NODE_ENV === 'production' 
+                ? process.env.PUPPETEER_EXECUTABLE_PATH 
+                : puppeteer.executablePath(),
         headless: true,
         args: [
             '--no-sandbox',
