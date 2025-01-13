@@ -1,20 +1,43 @@
-FROM ghcr.io/puppeteer/puppeteer:23.11.1
+FROM node:16-slim
 
-# Set environment variables for Puppeteer
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
-    PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
+# Set the working directory
+WORKDIR /app
 
-# Install Google Chrome
-RUN apt-get update && apt-get install -y wget gnupg \
-    && wget -qO - https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/google-chrome.gpg \
-    && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list \
-    && apt-get update && apt-get install -y google-chrome-stable \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+# Install required packages for Puppeteer
+RUN apt-get update \
+    && apt-get install -y wget gnupg \
+    && apt-get install -y --no-install-recommends \
+       libx11-xcb1 \
+       libxcomposite1 \
+       libxdamage1 \
+       libxrandr2 \
+       libasound2 \
+       libatk1.0-0 \
+       libcups2 \
+       libnss3 \
+       libxss1 \
+       libxtst6 \
+       fonts-liberation \
+       libappindicator3-1 \
+       libgtk-3-0 \
+       libgbm-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# Set up app
-WORKDIR /usr/src/app
+# Copy package.json and package-lock.json
 COPY package*.json ./
-RUN npm ci
+
+# Install dependencies, including Puppeteer
+RUN npm install --omit=dev && npm cache clean --force
+
+# Copy the app code to the container
 COPY . .
 
+# Set environment variables for Puppeteer
+# Disable sandbox for Chromium (necessary for Render environments)
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=false \
+    PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable \
+    NODE_ENV=production
+
+# Start the application
 CMD ["node", "app.js"]
