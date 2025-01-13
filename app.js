@@ -29,10 +29,7 @@ io.on('connection', (socket) => {
       const data = JSON.parse(msg);
       let messagesSent = 0;
       const browser = await puppeteer.launch({
-        executablePath:
-            process.env.NODE_ENV === 'production' 
-                ? process.env.PUPPETEER_EXECUTABLE_PATH 
-                : puppeteer.executablePath(),
+        executablePath: '/usr/bin/google-chrome',
         headless: true,
         args: [
             '--no-sandbox',
