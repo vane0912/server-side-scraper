@@ -9,16 +9,16 @@ const urls = [
     //    url: 'https://b2b.regio.travel/login.xhtml?microsite=regioperadora&keepurl=true&url=%2Fhome',
     //    funct: regio_func
     //},
-    {
-        operadora: 'VTO',
-        url: 'https://vtoreservaciones.com/Default.aspx',
-        funct: vto_func
-    },
-    {
-        operadora: 'Check Hotel',
-        url: 'https://checkhotel.mx/',
-        funct: checkhotel_func
-    },
+    //{
+    //    operadora: 'VTO',
+    //    url: 'https://vtoreservaciones.com/Default.aspx',
+    //    funct: vto_func
+    //},
+    //{
+    //    operadora: 'Check Hotel',
+    //    url: 'https://checkhotel.mx/',
+    //    funct: checkhotel_func
+    //},
     {
         operadora: 'Bedsonline',
         url: 'https://app.bedsonline.com/auth/login',
