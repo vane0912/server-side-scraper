@@ -1,29 +1,29 @@
-FROM node:16-slim
+# Use the official Node.js image as a base
+FROM node:18-slim
 
-# Set the working directory
+# Set the working directory inside the container
 WORKDIR /app
 
-# We don't need the standalone Chromium
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
-    NODE_ENV=production
-
-# Install Google Chrome Stable and fonts
-# Note: this installs the necessary libs to make the browser work with Puppeteer.
-RUN apt-get update && apt-get install curl gnupg -y \
-  && curl --location --silent https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
-  && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
-  && apt-get update \
-  && apt-get install google-chrome-stable -y --no-install-recommends \
-  && rm -rf /var/lib/apt/lists/*
-
-# Copy package.json and package-lock.json
+# Copy package.json and package-lock.json to the working directory
 COPY package*.json ./
 
-# Install dependencies, including Puppeteer
-RUN npm install --omit=dev && npm cache clean --force
+# Install dependencies
+RUN npm install
 
-# Copy the app code to the container
+# Copy the rest of the application code to the working directory
 COPY . .
 
-# Start the application
+# Install Chromium for Puppeteer
+RUN apt-get update && apt-get install -y \
+    chromium \
+    --no-install-recommends && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set the environment variable to use Chromium
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+
+# Expose the port your application will use
+EXPOSE 3000
+
+# Command to run your app
 CMD ["node", "app.js"]

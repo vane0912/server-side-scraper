@@ -4,7 +4,33 @@ function delay(time) {
         setTimeout(resolve, time)
     });
 }
-async function checkhotel_scraper(page, url, operadora, client_data){
+async function checkhotel_scraper(url, operadora, client_data){
+    const browser = await puppeteer.launch({
+        executablePath: '/usr/bin/chromium',
+        args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-session-crashed-bubble',
+            '--disable-accelerated-2d-canvas',
+            '--no-first-run',
+            '--no-zygote',
+            '--single-process',
+            '--noerrdialogs',
+            '--disable-gpu'
+        ]
+     }
+    );
+    const page = await browser.newPage();
+    await page.setRequestInterception(true);
+    page.on('request', (request) => {
+      const blockedResources = ['image', 'font', 'media'];
+      if (blockedResources.includes(request.resourceType())) {
+          request.abort();
+      } else {
+          request.continue();
+      }
+    });
     const data = []
     await page.goto(url);
     await page.setViewport({width: 1480, height: 1024});
@@ -64,7 +90,7 @@ async function checkhotel_scraper(page, url, operadora, client_data){
                         score: await text[i].$$eval('.fa-star:not(.hidden-print)', element => element.length),
                         hotel_title: await text[i].$eval('h3', h1 => h1.textContent.trim()),
                         hotel_details: "Desconocido",
-                        //img_hotel : await text[i].$eval('.img-responsive', element => element.src),
+                        img_hotel : await text[i].$eval('.img-responsive', element => element.src),
                         cancelacion: "Desconocido" 
                     }
                     data.push(arrange_data)
@@ -80,14 +106,17 @@ async function checkhotel_scraper(page, url, operadora, client_data){
                     score: await text[i].$$eval('.fa-star:not(.hidden-print)', element => element.length),
                     hotel_title: await text[i].$eval('h3', h1 => h1.textContent.trim()),
                     hotel_details: "Desconocido",
-                    //img_hotel : await text[i].$eval('.img-responsive', element => element.src),
+                    img_hotel : await text[i].$eval('.img-responsive', element => element.src),
                     cancelacion: "Desconocido" 
                 }
                 data.push(arrange_data)
             }
         }
+        await browser.close();
         return data
-    }catch{
+    }
+    catch(err){
+        await browser.close();
         console.log(err)
         return {'Error': 'Check Hotel'}
     }

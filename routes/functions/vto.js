@@ -1,6 +1,32 @@
 const puppeteer = require('puppeteer');
 
-async function vto_scrape(page, url, operadora, client_data){
+async function vto_scrape(url, operadora, client_data){
+    const browser = await puppeteer.launch({
+        executablePath: '/usr/bin/chromium',
+        args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-session-crashed-bubble',
+            '--disable-accelerated-2d-canvas',
+            '--no-first-run',
+            '--no-zygote',
+            '--single-process',
+            '--noerrdialogs',
+            '--disable-gpu'
+        ]
+     }
+    );
+    const page = await browser.newPage();
+    await page.setRequestInterception(true);
+      page.on('request', (request) => {
+        const blockedResources = ['image', 'font', 'media'];
+        if (blockedResources.includes(request.resourceType())) {
+            request.abort();
+        } else {
+            request.continue();
+        }
+    });
     await page.goto(url);
     await page.setViewport({width: 1480, height: 1024});
     let data = []
@@ -77,14 +103,16 @@ async function vto_scrape(page, url, operadora, client_data){
                 hotel_title: await el.$eval('.booking-item-title', title => title.textContent),
                 score: await el.$$eval('.booking-item-rating ul li .fa-star', element => element.length),
                 hotel_details: 'Desconocido',
-                //img_hotel : await el.$eval('.booking-item-img-wrap img', element => element.src),
+                img_hotel : await el.$eval('.booking-item-img-wrap img', element => element.src),
                 cancelacion: 'Desconocido'
             }
             data.push(arrange_data);
         }
+        await browser.close();
         return data
     }
     catch(err){
+        await browser.close();
         console.log(err)
         return {'Error': 'VTO'}
     }
