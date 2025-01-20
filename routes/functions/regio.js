@@ -10,6 +10,7 @@ function delay(time) {
 async function regio_scraper(url, operadora, client_data){
     const browser = await puppeteer.launch({
         //executablePath: '/usr/bin/chromium',
+        //headless: false,
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
@@ -58,6 +59,7 @@ async function regio_scraper(url, operadora, client_data){
 
         await page.waitForSelector('.c-modal-cookies-consent', { visible: true })
         await page.locator('.c-modal-cookies-consent .dev-accept-all').click()
+        
         await page.waitForNavigation({waitUntil: 'domcontentloaded', timeout: 0})
         await page.waitForSelector('::-p-xpath(//input[@data-p-label="Destino"])', { visible: true })
         await page.locator('::-p-xpath(//input[@data-p-label="Destino"])').fill(client_data.destiny)
