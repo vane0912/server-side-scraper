@@ -2,13 +2,14 @@ const vto_func = require('./functions/vto')
 const azabache_func = require('./functions/azabache')
 const checkhotel_func = require('./functions/check_hotel')
 const bedsonline_func = require('./functions/bedsonline')
+const regio_func = require('./functions/regio')
 
 const urls = [
-    //{
-    //    operadora: 'Regio',
-    //    url: 'https://b2b.regio.travel/login.xhtml?microsite=regioperadora&keepurl=true&url=%2Fhome',
-    //    funct: regio_func
-    //},
+    {
+        operadora: 'Regio',
+        url: 'https://b2b.regio.travel/login.xhtml?microsite=regioperadora&keepurl=true&url=%2Fhome',
+        funct: regio_func
+    },
     {
         operadora: 'VTO',
         url: 'https://vtoreservaciones.com/Default.aspx',
