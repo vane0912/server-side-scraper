@@ -5,41 +5,53 @@ const { createServer } = require('node:http');
 const { Server } = require('socket.io');
 const urls = require('./routes/scraper_hoteles');
 require('dotenv').config();
-const app = express();
-const port = process.env.PORT || 3004; 
 
-const server = createServer(app);
+const app = express();
+
+// Middleware
 app.use(cors());
-const io = new Server(server, {
-    cors: {
-        origin: '*',
-    }
+app.use(bodyParser.json());
+
+// Define HTTP route
+app.get('/', (req, res) => {
+  res.json({ message: 'Scraper Hoteles' });
 });
 
-app.use(bodyParser.json());
-app.get('/', (req, res) => {
-    res.json({ message: 'Scraper Hoteles' })
-})
+// Create HTTP server
+const server = createServer(app);
+
+// Initialize WebSocket server
+const io = new Server(server, {
+  cors: {
+    origin: '*',
+  }
+});
 
 io.on('connection', (socket) => {
   console.log('A user connected');
+  
   socket.on('message', async (msg) => {
     const data = JSON.parse(msg);
     let messagesSent = 0;
-    urls.forEach(async (url) =>{
-      const results = await url.funct(url.url, url.operadora, data)
-      io.emit('message', results)
+
+    urls.forEach(async (url) => {
+      const results = await url.funct(url.url, url.operadora, data);
+      io.emit('message', results);
       messagesSent++;
+      
       if (messagesSent === urls.length) {
         io.disconnectSockets();
       }
-    })
-  })
+    });
+  });
+
   socket.on('disconnect', () => {
     console.log('A user disconnected');
   });
 });
-  
-server.listen(port, () => {
-    console.log(`Server is listening on port ${port}`);
-})
+
+// Start the server
+const PORT = process.env.PORT || 3004;
+server.listen(PORT, () => {
+  console.log(`Server is listening on port ${PORT}`);
+});
