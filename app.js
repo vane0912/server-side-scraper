@@ -7,8 +7,6 @@ const urls = require('./routes/scraper_hoteles');
 require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 3004; 
-const pLimit = require('p-limit');
-const limit = pLimit.default(2)
 
 const server = createServer(app);
 app.use(cors());
