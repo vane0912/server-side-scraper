@@ -6,7 +6,7 @@ function delay(time) {
 }
 async function bedsonline_scraper(url, operadora, client_data){
     const browser = await puppeteer.launch({
-        //executablePath: '/usr/bin/chromium',
+        executablePath: '/usr/bin/chromium',
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',

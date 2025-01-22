@@ -9,7 +9,7 @@ function delay(time) {
 }
 async function regio_scraper(url, operadora, client_data){
     const browser = await puppeteer.launch({
-        //executablePath: '/usr/bin/chromium',
+        executablePath: '/usr/bin/chromium',
         //headless: false,
         args: [
             '--no-sandbox',

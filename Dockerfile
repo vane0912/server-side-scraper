@@ -1,29 +1,31 @@
-# Use the official Node.js image as a base
+# Use the Node.js image
 FROM node:18-slim
 
-# Set the working directory inside the container
-WORKDIR /app
+# Install Chromium dependencies
+RUN apt-get update && apt-get install -y \
+  libnss3 \
+  libx11-xcb1 \
+  libxcomposite1 \
+  libxdamage1 \
+  libxrandr2 \
+  libxss1 \
+  libxtst6 \
+  xdg-utils \
+  fonts-liberation \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
 
-# Copy package.json and package-lock.json to the working directory
-COPY package*.json ./
+# Set the working directory
+WORKDIR /usr/src/app
+
+# Copy app files
+COPY . .
 
 # Install dependencies
 RUN npm install
 
-# Copy the rest of the application code to the working directory
-COPY . .
-
-# Install Chromium for Puppeteer
-RUN apt-get update && apt-get install -y \
-    chromium \
-    --no-install-recommends && \
-    rm -rf /var/lib/apt/lists/*
-
-# Set the environment variable to use Chromium
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
-
-# Expose the port your application will use
+# Expose the port
 EXPOSE 3000
 
-# Command to run your app
-CMD ["node", "app.js"]
+# Start the application
+CMD ["npm", "start"]
