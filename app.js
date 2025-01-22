@@ -28,18 +28,15 @@ io.on('connection', (socket) => {
   socket.on('message', async (msg) => {
     const data = JSON.parse(msg);
     let messagesSent = 0;
-    urls.map(async (url) =>{
-      await limit(() => 
-        url.funct(url.url, url.operadora, data).then((results) => {
-          io.emit('message', results);
-          messagesSent++;
-          if (messagesSent === urls.length) {
-            io.disconnectSockets();
-          }
-        })
-      )
+    urls.forEach(async (url) =>{
+      const results = await url.funct(url.url, url.operadora, data)
+      io.emit('message', results)
+      messagesSent++;
+      if (messagesSent === urls.length) {
+        io.disconnectSockets();
+      }
     })
-  });
+  })
   socket.on('disconnect', () => {
     console.log('A user disconnected');
   });
