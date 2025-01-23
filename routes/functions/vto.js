@@ -1,25 +1,7 @@
-const puppeteer = require('puppeteer');
-
-async function vto_scrape(url, operadora, client_data){
-    const browser = await puppeteer.launch({
-        //executablePath: '/usr/bin/chromium',
-        args: [
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage',
-            '--disable-session-crashed-bubble',
-            '--disable-accelerated-2d-canvas',
-            '--no-first-run',
-            '--no-zygote',
-            '--single-process',
-            '--noerrdialogs',
-            '--disable-gpu'
-        ]
-     }
-    );
+async function vto_scrape(browser, url, operadora, client_data){
     const page = await browser.newPage();
     await page.setRequestInterception(true);
-      page.on('request', (request) => {
+    page.on('request', (request) => {
         const blockedResources = ['image', 'font', 'media'];
         if (blockedResources.includes(request.resourceType())) {
             request.abort();
@@ -108,11 +90,11 @@ async function vto_scrape(url, operadora, client_data){
             }
             data.push(arrange_data);
         }
-        await browser.close();
+        await page.close()
         return data
     }
     catch(err){
-        await browser.close();
+        await page.close()
         console.log(err)
         return {'Error': 'VTO'}
     }

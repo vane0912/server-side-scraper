@@ -4,23 +4,7 @@ function delay(time) {
         setTimeout(resolve, time)
     });
 }
-async function bedsonline_scraper(url, operadora, client_data){
-    const browser = await puppeteer.launch({
-        executablePath: '/usr/bin/chromium',
-        args: [
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage',
-            '--disable-session-crashed-bubble',
-            '--disable-accelerated-2d-canvas',
-            '--no-first-run',
-            '--no-zygote',
-            '--single-process',
-            '--noerrdialogs',
-            '--disable-gpu'
-        ]
-     }
-    );
+async function bedsonline_scraper(browser, url, operadora, client_data){
     const page = await browser.newPage();
     await page.setRequestInterception(true);
     page.on('request', (request) => {
@@ -125,11 +109,11 @@ async function bedsonline_scraper(url, operadora, client_data){
                 break;
             }
         }
-        await browser.close();
+        await page.close();
         return data
     }
     catch(err){
-        await browser.close();
+        await page.close();
         console.log(err)
         return {'Error': 'Bedsonline'}
     }
