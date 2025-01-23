@@ -6,14 +6,14 @@ const regio_func = require('./functions/regio')
 
 const urls = [
     {
-        operadora: 'Regio',
-        url: 'https://b2b.regio.travel/home',
-        funct: regio_func
-    },
-    {
         operadora: 'VTO',
         url: 'https://vtoreservaciones.com/Hotel/Hotel.aspx',
         funct: vto_func
+    },
+    {
+        operadora: 'Regio',
+        url: 'https://b2b.regio.travel/home',
+        funct: regio_func
     },
     //https://vtoreservaciones.com/Hotel/Hotel.aspx
     {

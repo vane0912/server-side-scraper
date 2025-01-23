@@ -34,23 +34,22 @@ io.on('connection', async (socket) => {
   socket.on('message', async (msg) => {
     const data = JSON.parse(msg);
     let messagesSent = 0;
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-session-crashed-bubble',
-        '--disable-accelerated-2d-canvas',
-        '--no-first-run',
-        '--no-zygote',
-        '--single-process',
-        '--noerrdialogs',
-        '--disable-gpu',
-      ],
-    });
-
     try {
+      const browser = await puppeteer.launch({
+        headless: false,
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-session-crashed-bubble',
+          '--disable-accelerated-2d-canvas',
+          '--no-first-run',
+          '--no-zygote',
+          '--single-process',
+          '--noerrdialogs',
+          '--disable-gpu',
+        ],
+      });
       for (const url of urls) {
         const results = await url.funct(browser, url.url, url.operadora, data);
         io.emit('message', results);

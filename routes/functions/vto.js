@@ -10,14 +10,20 @@ async function vto_scrape(browser, url, operadora, client_data){
             request.continue();
         }
     });
-    if (fs.existsSync('./Cookies/cookies-vto.json')) {
-        const cookies = JSON.parse(fs.readFileSync('./Cookies/cookies-vto.json'));
-        await page.setCookie(...cookies);
-    }
     await page.goto(url);
     await page.setViewport({width: 1480, height: 1024});
     let data = []
     try{ 
+        await page.waitForSelector('#txtUser');
+        await page.type('#txtUser', 'david_gonzalez');
+
+        await page.waitForSelector('#txtPassword');
+        await page.type('#txtPassword', 'gonzalez123'); 
+
+        await page.locator('#btnAccept').click() 
+
+        await page.waitForNavigation({waitUntil: 'networkidle0', timeout: 0})
+
         await page.waitForSelector('#txCiudadNombre', { visible: true })
         await page.locator('#txCiudadNombre').fill(client_data.destiny)
         await page.waitForSelector('.tt-dropdown-menu', { visible: true })
