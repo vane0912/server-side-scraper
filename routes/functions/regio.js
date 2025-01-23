@@ -1,7 +1,6 @@
 const authorization_gmail = require('./authentication')
 const getMessage = require('./get_messages');
-const puppeteer = require('puppeteer');
-
+const fs = require('fs');
 function delay(time) {
     return new Promise(function(resolve) { 
         setTimeout(resolve, time)
@@ -19,11 +18,16 @@ async function regio_scraper(browser, url, operadora, client_data){
       }
     });
     const data = []
+    if (fs.existsSync('./Cookies/cookies-regio.json')) {
+        const cookies = JSON.parse(fs.readFileSync('./Cookies/cookies-regio.json'));
+        await page.setCookie(...cookies);
+    }
     await page.goto(url);
 
     await page.setViewport({width: 1480, height: 1024});
 
     try{
+        /*
         await page.waitForSelector('.login-email-input', {timeout: 0});
         await page.type('.login-email-input', 'DavidG');
 
@@ -44,6 +48,7 @@ async function regio_scraper(browser, url, operadora, client_data){
         await page.locator('.c-modal-cookies-consent .dev-accept-all').click()
         
         await page.waitForNavigation({waitUntil: 'domcontentloaded', timeout: 0})
+        */
         await page.waitForSelector('::-p-xpath(//input[@data-p-label="Destino"])', { visible: true })
         await page.locator('::-p-xpath(//input[@data-p-label="Destino"])').fill(client_data.destiny)
         await page.waitForSelector('::-p-xpath(//tr[@id="j_id_6v:init-compositor-all:destinationOnlyAccommodation_item_0"])')

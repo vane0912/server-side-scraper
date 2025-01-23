@@ -51,9 +51,7 @@ io.on('connection', async (socket) => {
     });
 
     try {
-      // Loop through all the URLs
       for (const url of urls) {
-        // Pass the browser object to each scraping function
         const results = await url.funct(browser, url.url, url.operadora, data);
         io.emit('message', results);
         messagesSent++;
@@ -62,6 +60,7 @@ io.on('connection', async (socket) => {
         }
       }
     } catch (error) {
+      io.emit('message', results);
       io.disconnectSockets();
       console.error('Error during scraping:', error);
     } finally {

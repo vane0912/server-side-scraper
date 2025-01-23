@@ -1,4 +1,4 @@
-const puppeteer = require('puppeteer');
+const fs = require('fs');
 function delay(time) {
     return new Promise(function(resolve) { 
         setTimeout(resolve, time)

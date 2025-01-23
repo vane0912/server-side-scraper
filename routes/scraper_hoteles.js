@@ -5,16 +5,17 @@ const bedsonline_func = require('./functions/bedsonline')
 const regio_func = require('./functions/regio')
 
 const urls = [
-    //{
-    //    operadora: 'Regio',
-    //    url: 'https://b2b.regio.travel/login.xhtml?microsite=regioperadora&keepurl=true&url=%2Fhome',
-    //    funct: regio_func
-    //},
+    {
+        operadora: 'Regio',
+        url: 'https://b2b.regio.travel/home',
+        funct: regio_func
+    },
     {
         operadora: 'VTO',
-        url: 'https://vtoreservaciones.com/Default.aspx',
+        url: 'https://vtoreservaciones.com/Hotel/Hotel.aspx',
         funct: vto_func
     },
+    //https://vtoreservaciones.com/Hotel/Hotel.aspx
     {
         operadora: 'Check Hotel',
         url: 'https://checkhotel.mx/',
@@ -22,7 +23,7 @@ const urls = [
     },
     {
         operadora: 'Bedsonline',
-        url: 'https://app.bedsonline.com/auth/login',
+        url: 'https://app.bedsonline.com/main',
         funct: bedsonline_func
     },
     {

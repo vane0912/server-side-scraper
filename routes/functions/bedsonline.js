@@ -1,4 +1,3 @@
-const puppeteer = require('puppeteer');
 function delay(time) {
     return new Promise(function(resolve) { 
         setTimeout(resolve, time)
@@ -25,6 +24,7 @@ async function bedsonline_scraper(browser, url, operadora, client_data){
         await page.type('#password', 'Ventas12021968.')
         await page.locator('.login-button').click()
         await page.waitForNavigation({waitUntil: 'networkidle0', timeout:0})
+
         await page.locator('#dropDownInput').fill(client_data.destiny)
         await page.waitForSelector(".hb-dropdown__wrapper", {visible: true})
         await page.waitForSelector(".fts-dropdown__fts", {visible: true})
