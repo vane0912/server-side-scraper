@@ -55,6 +55,7 @@ io.on('connection', async (socket) => {
         io.emit('message', results);
         messagesSent++;
         if (messagesSent === urls.length) {
+          await browser.close()
           io.disconnectSockets();
         }
       }
@@ -62,9 +63,7 @@ io.on('connection', async (socket) => {
       io.emit('message', results);
       io.disconnectSockets();
       console.error('Error during scraping:', error);
-    } finally {
-      await browser.close();  // Close the browser after all scraping is done
-    }
+    } 
   });
 
   socket.on('disconnect', () => {

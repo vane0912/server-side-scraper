@@ -89,6 +89,7 @@ async function azabache_scraper(browser, url, operadora, client_data){
         await page.waitForSelector('.dev-incremental-completed', { visible: true, timeout: 0 });
         const hotel_label_wraper = await page.$('#accomodationType')
         const labels = await hotel_label_wraper.$$eval('label', labels => labels.map(label => label.textContent));
+        const meal_plan_type = await page.$('#mealPlanFilter')
         for (let i = 0; i < labels.length; i++) {
             if (labels[i] === 'Hotel') {
                 const labelElement = (await hotel_label_wraper.$$('label'))[i];
@@ -97,6 +98,21 @@ async function azabache_scraper(browser, url, operadora, client_data){
                 await page.waitForSelector('.ui-blockui', { hidden: true });
             }
         }
+
+        const labels_meal_plan = await meal_plan_type.$$eval('label', labels => labels.map(label => label.textContent));
+        for (let i = 0; i < labels_meal_plan.length; i++) {
+            if (labels_meal_plan[i].includes(client_data.type)) {
+                const labelElement = (await meal_plan_type.$$('label'))[i];
+                await labelElement.click();
+                await page.waitForSelector('.ui-blockui', { visible: true });
+                await page.waitForSelector('.ui-blockui', { hidden: true });
+                break
+            }
+            if(i + 1 == labels_meal_plan.length && !labels_meal_plan[i].includes(client_data.type)){
+                return {'Error': 'Azabache, no tiene habitaciones tipo ' + client_data.type}
+            }
+        }
+
         await page.waitForSelector('.ui-dataview-column', { visible: true, timeout: 8000 });
         if (await page.$('.ui-paginator-bottom')){
             while (true) {
