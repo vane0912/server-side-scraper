@@ -21,11 +21,11 @@ const urls = [
     //    url: 'https://checkhotel.mx/',
     //    funct: checkhotel_func
     //},
-    //{
-    //    operadora: 'Bedsonline',
-    //    url: 'https://app.bedsonline.com/main',
-    //    funct: bedsonline_func
-    //},
+    {
+        operadora: 'Bedsonline',
+        url: 'https://app.bedsonline.com/main',
+        funct: bedsonline_func
+    },
     {
         operadora: 'Azabache',
         url: 'https://azabache.paquetedinamico.com/login.xhtml?microsite=azabache&keepurl=true&url=%2Fhome',

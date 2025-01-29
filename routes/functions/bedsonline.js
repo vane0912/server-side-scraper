@@ -68,6 +68,30 @@ async function bedsonline_scraper(browser, url, operadora, client_data){
         await page.locator('::-p-xpath(//button[@data-qa="btn_search_stay_themepark"])').click()
         await page.waitForSelector('.loader__main', {visible: true})
         await page.waitForSelector('.loader__main', {hidden: true, timeout: 0})
+        await page.waitForSelector('::-p-xpath(//hb-tree[@data-qa="filter_checkbox"])')
+        
+        const get_filter = await page.$$('::-p-xpath(//hb-tree[@data-qa="filter_checkbox"])')
+        const see_more_filter = await get_filter[0].$$('button')
+        if(see_more_filter.length > 0){
+            await see_more_filter[0].click()
+        }
+        const filters_checkboxes = await get_filter[0].$$eval('.checkbox-filter .hb-checkbox__label', labels => labels.map(label => label.textContent))
+        let typevalue;
+        client_data.type === 'Solo alojamiento' ? typevalue = 'Sólo habitación (hoteles)' : typevalue = client_data.type
+        for (let i = 0; i < filters_checkboxes.length; i++) {
+            if (filters_checkboxes[i].includes(typevalue)) {
+                const labelElement = (await get_filter[0].$$('label'))[i];
+                await labelElement.click();
+                await page.waitForSelector('clientb2b-front-skeleton-action-box', {visible: true})
+                await page.waitForSelector('clientb2b-front-skeleton-action-box', { hidden: true });
+                break
+            }
+            if(i + 1 == filters_checkboxes.length && !filters_checkboxes[i].includes(typevalue)){
+                console.log(filters_checkboxes[i].includes(typevalue))
+                return {'Error': 'Bedsonline, no tiene habitaciones tipo ' + typevalue}
+            }
+        }
+
         while (true) {
             const see_more = await page.$$('.hb-divider__content button')
             if (see_more.length > 0) {
@@ -82,7 +106,7 @@ async function bedsonline_scraper(browser, url, operadora, client_data){
                         price: await text[i].$eval('::-p-xpath(//span[@class="tooltip-markup-commission__price__container__integer"])', price => price.textContent.trim()),
                         score: await text[i].$$eval('.hb-base-icon-star', element => element.length),
                         hotel_title: await text[i].$eval('::-p-xpath(//span[@class="card-content-header__name__title"])', h1 => h1.textContent.trim()),
-                        hotel_details: await text[i].$$eval('.card-price__product__price__room-info__group__code', element => element.length) === 0 ? 'Desconocido' : await text[i].$eval('.card-price__product__price__room-info__group__code', (h1) => {
+                        hotel_details: await text[i].$$eval('.card-price__product__price__room-info__group__code', element => element.length) === 0 ? typevalue : await text[i].$eval('.card-price__product__price__room-info__group__code', (h1) => {
                             switch(h1.textContent.trim()){
                                 case 'SH':
                                     return 'Solo habitación'
