@@ -8,7 +8,7 @@ async function azabache_scraper(browser, url, operadora, client_data){
     const page = await browser.newPage();
     await page.setRequestInterception(true);
     page.on('request', (request) => {
-        const blockedResources = ['image', 'font', 'media'];
+        const blockedResources = ['font', 'media'];
         if (blockedResources.includes(request.resourceType())) {
             request.abort();
         } else {
@@ -20,7 +20,7 @@ async function azabache_scraper(browser, url, operadora, client_data){
     await page.setViewport({width: 1480, height: 1024});
 
     try{
-        await page.waitForSelector('.login-email-input', {timeout: 0});
+        await page.waitForSelector('.login-email-input', {timeout: 100000});
         await page.type('.login-email-input', 'ventas.mxtravel2@gmail.com');
 
         await page.waitForSelector('.login-password-input');
@@ -42,7 +42,7 @@ async function azabache_scraper(browser, url, operadora, client_data){
 
         await page.waitForSelector('.c-modal-cookies-consent', { visible: true })
         await page.locator('.c-modal-cookies-consent .dev-accept-all').click()
-        await page.waitForNavigation({waitUntil: 'domcontentloaded', timeout: 0})
+        await page.waitForNavigation({waitUntil: 'domcontentloaded', timeout: 100000})
         await page.waitForSelector('::-p-xpath(//a[@id="j_id_6v:init-compositor-all:homeTab:0:onlyHotel"])')
         await page.locator('::-p-xpath(//a[@id="j_id_6v:init-compositor-all:homeTab:0:onlyHotel"])').click()
         await delay(3000)
@@ -85,8 +85,8 @@ async function azabache_scraper(browser, url, operadora, client_data){
         await page.locator('.accept-distributions').click()
         await page.locator('.dev-button-startTrip').click()
         await page.waitForSelector('.modalCargando', { visible: true });
-        await page.waitForSelector('.modalCargando', { hidden: true, timeout: 0 });
-        await page.waitForSelector('.dev-incremental-completed', { visible: true, timeout: 0 });
+        await page.waitForSelector('.modalCargando', { hidden: true, timeout: 100000 });
+        await page.waitForSelector('.dev-incremental-completed', { visible: true, timeout: 100000 });
         const hotel_label_wraper = await page.$('#accomodationType')
         const labels = await hotel_label_wraper.$$eval('label', labels => labels.map(label => label.textContent));
         const meal_plan_type = await page.$('#mealPlanFilter')
@@ -99,21 +99,21 @@ async function azabache_scraper(browser, url, operadora, client_data){
             }
         }
 
-        const labels_meal_plan = await meal_plan_type.$$eval('label', labels => labels.map(label => label.textContent));
+        const labels_meal_plan = await meal_plan_type.$$eval('label', labels => labels.map(label => label.textContent.toLowerCase()));
         for (let i = 0; i < labels_meal_plan.length; i++) {
-            if (labels_meal_plan[i].includes(client_data.type)) {
+            if (labels_meal_plan[i].includes(client_data.type.toLowerCase())) {
                 const labelElement = (await meal_plan_type.$$('label'))[i];
                 await labelElement.click();
                 await page.waitForSelector('.ui-blockui', { visible: true });
                 await page.waitForSelector('.ui-blockui', { hidden: true });
                 break
             }
-            if(i + 1 == labels_meal_plan.length && !labels_meal_plan[i].includes(client_data.type)){
+            if(i + 1 == labels_meal_plan.length && !labels_meal_plan[i].includes(client_data.type.toLowerCase())){
                 return {'Error': 'Azabache, no tiene habitaciones tipo ' + client_data.type}
             }
         }
 
-        await page.waitForSelector('.ui-dataview-column', { visible: true, timeout: 8000 });
+        await page.waitForSelector('.ui-dataview-column', { visible: true, timeout: 80000 });
         if (await page.$('.ui-paginator-bottom')){
             while (true) {
                 await page.waitForSelector('.ui-blockui-content__wrapper', { hidden: true });
@@ -122,7 +122,7 @@ async function azabache_scraper(browser, url, operadora, client_data){
                   return element ? element.classList.contains(className) : false;
                 }, '.ui-paginator-next', 'ui-state-disabled');
                 if (hasClass) {
-                    const text = await page.$$('.ui-dataview-column', {timeout: 0})
+                    const text = await page.$$('.ui-dataview-column', {timeout: 100000})
                     await Promise.all(text.map(async (el) => {
                         const cancelacion =  await el.$('.c-extended__selected-combination .clr--success span')
                         const arrange_data = {
@@ -137,7 +137,7 @@ async function azabache_scraper(browser, url, operadora, client_data){
                     }));
                     break;
                 } else {
-                    const text = await page.$$('.ui-dataview-column', {timeout: 0})
+                    const text = await page.$$('.ui-dataview-column', {timeout: 100000})
                     await Promise.all(text.map(async (el) => {
                         const cancelacion =  await el.$('.c-extended__selected-combination .clr--success span')
                         const arrange_data = {
@@ -150,13 +150,13 @@ async function azabache_scraper(browser, url, operadora, client_data){
                         }
                         return data.push(arrange_data)
                     }));
-                    await page.waitForSelector('.ui-paginator-next', { timeout: 10_000, visible: 'true' });
+                    await page.waitForSelector('.ui-paginator-next', { timeout: 10000, visible: 'true' });
                     await page.$eval('.ui-paginator-next', el => el.click())
                     await delay(4000)
                 }
               }
         }else{
-            const text = await page.$$('.ui-dataview-column', {timeout: 0})
+            const text = await page.$$('.ui-dataview-column', {timeout: 100000})
             await Promise.all(text.map(async (el) => {
                 const cancelacion =  await el.$('.c-extended__selected-combination .clr--success span')
                 const arrange_data = {

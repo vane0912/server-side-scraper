@@ -90,10 +90,9 @@ async function regio_scraper(browser, url, operadora, client_data){
         await page.locator('.accept-distributions').click()
         await page.locator('.dev-button-startTrip').click()
         await page.waitForSelector('.modalCargando', { visible: true });
-        await page.waitForSelector('.modalCargando', { hidden: true, timeout: 0 });
-        await page.waitForSelector('.dev-incremental-completed', { visible: true, timeout: 0 });
+        await page.waitForSelector('.modalCargando', { hidden: true, timeout: 100000 });
+        await page.waitForSelector('.dev-incremental-completed', { visible: true, timeout: 100000 });
         const hotel_label_wraper = await page.$('#accomodationType')
-        const meal_plan_type = await page.$('#mealPlanFilter')
 
         const labels = await hotel_label_wraper.$$eval('label', labels => labels.map(label => label.textContent));
         for (let i = 0; i < labels.length; i++) {
@@ -104,23 +103,24 @@ async function regio_scraper(browser, url, operadora, client_data){
                 await page.waitForSelector('.ui-blockui', { hidden: true });
             }
         }
-        const labels_meal_plan = await meal_plan_type.$$eval('label', labels => labels.map(label => label.textContent));
+        const meal_plan_type = await page.$('#mealPlanFilter')
+        const labels_meal_plan = await meal_plan_type.$$eval('label', labels => labels.map(label => label.textContent.toLowerCase()));
         
         for (let i = 0; i < labels_meal_plan.length; i++) {
-            if (labels_meal_plan[i].includes(client_data.type)) {
+            if (labels_meal_plan[i].includes(client_data.type.toLowerCase())) {
                 const labelElement = (await meal_plan_type.$$('label'))[i];
                 await labelElement.click();
                 await page.waitForSelector('.ui-blockui', { visible: true });
                 await page.waitForSelector('.ui-blockui', { hidden: true });
                 break
             }
-            if(i + 1 == labels_meal_plan.length && !labels_meal_plan[i].includes(client_data.type)){
+            if(i + 1 == labels_meal_plan.length && !labels_meal_plan[i].includes(client_data.type.toLowerCase())){
                 console.log(labels_meal_plan[i].includes(client_data.type))
                 return {'Error': 'Regio, no tiene habitaciones tipo ' + client_data.type}
             }
         }
 
-        await page.waitForSelector('.ui-dataview-column', { visible: true, timeout: 8000 });
+        await page.waitForSelector('.ui-dataview-column', { visible: true, timeout: 80000});
         if (await page.$('.ui-paginator-bottom')){
             while (true) {
                 await page.waitForSelector('.ui-blockui-content__wrapper', { hidden: true });
@@ -129,7 +129,7 @@ async function regio_scraper(browser, url, operadora, client_data){
                   return element ? element.classList.contains(className) : false;
                 }, '.ui-paginator-next', 'ui-state-disabled');
                 if (hasClass) {
-                    const text = await page.$$('.ui-dataview-column', {timeout: 0})
+                    const text = await page.$$('.ui-dataview-column', {timeout: 100000})
                     await Promise.all(text.map(async (el) => {
                         const cancelacion = await el.$('.c-extended__selected-combination .clr--success span')
                         const arrange_data = {
@@ -138,14 +138,13 @@ async function regio_scraper(browser, url, operadora, client_data){
                             score : await el.$$eval('.c-hotel-status__category.u-display--block .c-hotel-status__star:not(.hidden)', element => element.length),
                             hotel_details : await el.$eval('.c-extended__selected-combination .o-group--small span', room => room.textContent.trim().charAt(0).toUpperCase() + room.textContent.trim().slice(1).toLowerCase()),
                             price: await el.$eval('.c-price__primary', price => price.textContent.trim()),
-                            img_hotel: await el.$eval('img', element => element.src),
                             cancelacion: cancelacion ? await el.$eval('.c-extended__selected-combination .clr--success span', cancelation_txt => cancelation_txt.textContent.trim()) : "Sin Cancelacion gratis"
                         }
                         return data.push(arrange_data)
                     }));
                     break;
                 } else {
-                    const text = await page.$$('.ui-dataview-column', {timeout: 0})
+                    const text = await page.$$('.ui-dataview-column', {timeout: 100000})
                     await Promise.all(text.map(async (el) => {
                     const cancelacion =  await el.$('.c-extended__selected-combination .clr--success span')
                         const arrange_data = {
@@ -154,20 +153,19 @@ async function regio_scraper(browser, url, operadora, client_data){
                             score : await el.$$eval('.c-hotel-status__category.u-display--block .c-hotel-status__star:not(.hidden)', element => element.length),
                             hotel_details : await el.$eval('.c-extended__selected-combination .o-group--small span', room => room.textContent.trim().charAt(0).toUpperCase() + room.textContent.trim().slice(1).toLowerCase()),
                             price: await el.$eval('.c-price__primary', price => price.textContent.trim()),
-                            img_hotel: await el.$eval('img', element => element.src),
                             cancelacion: cancelacion ? await el.$eval('.c-extended__selected-combination .clr--success span', cancelation_txt => cancelation_txt.textContent.trim()) : "Sin Cancelacion gratis"
                         }
 
                         return data.push(arrange_data)
                     }));
 
-                    await page.waitForSelector('.ui-paginator-next', { timeout: 10_000, visible: 'true' });
+                    await page.waitForSelector('.ui-paginator-next', { timeout: 10000, visible: 'true' });
                     await page.$eval('.ui-paginator-next', el => el.click())
                     await delay(4000)
                 }
               }
         }else{
-            const text = await page.$$('.ui-dataview-column', {timeout: 0})
+            const text = await page.$$('.ui-dataview-column', {timeout: 100000})
             await Promise.all(text.map(async (el) => {
                 const cancelacion =  await el.$('.c-extended__selected-combination .clr--success span')
                 const arrange_data = {

@@ -16,11 +16,11 @@ const urls = [
         funct: regio_func
     },
     //https://vtoreservaciones.com/Hotel/Hotel.aspx
-    //{
-    //    operadora: 'Check Hotel',
-    //    url: 'https://checkhotel.mx/',
-    //    funct: checkhotel_func
-    //},
+    {
+        operadora: 'Check Hotel',
+        url: 'https://checkhotel.mx/',
+        funct: checkhotel_func
+    },
     {
         operadora: 'Bedsonline',
         url: 'https://app.bedsonline.com/main',

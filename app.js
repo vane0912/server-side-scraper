@@ -9,19 +9,15 @@ require('dotenv').config();
 
 const app = express();
 
-// Middleware
 app.use(cors());
 app.use(bodyParser.json());
 
-// Define HTTP route
 app.get('/', (req, res) => {
   res.json({ message: 'Scraper Hoteles' });
 });
 
-// Create HTTP server
 const server = createServer(app);
 
-// Initialize WebSocket server
 const io = new Server(server, {
   cors: {
     origin: '*',

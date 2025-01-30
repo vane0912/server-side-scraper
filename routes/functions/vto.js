@@ -1,3 +1,4 @@
+const e = require('express');
 const fs = require('fs');
 async function vto_scrape(browser, url, operadora, client_data){
     const page = await browser.newPage();
@@ -79,6 +80,25 @@ async function vto_scrape(browser, url, operadora, client_data){
         }
         await page.locator('.btn.btn-primary.btn-lg').click()
         await page.waitForNavigation({waitUntil: 'networkidle0', timeout: 60000})
+        
+        const labels_all = await page.$$('::-p-xpath(//label[@data-type="meals"])')
+        const meal_labels = await page.$$eval('::-p-xpath(//label[@data-type="meals"])', labels => labels.map(label => label.textContent.trim()))
+        let labels_count = meal_labels.length;
+        for (let i = 0; i < labels_count.length; i++) {
+            if (!meal_labels[i].includes(client_data.type)) {
+                if(i === 0){
+                    const labelElement = (await labels_all[i].$('ins'));
+                    await labelElement.click();
+                    await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
+                }else{
+                    const labelElement = (await labels_all[i].$('ins'));
+                    await labelElement.click();
+                }
+                if(i + 1 == meal_labels.length){
+                    await page.reload({ waitUntil: ["networkidle0", "domcontentloaded"] });
+                }
+            }
+        }
         const items = await page.$$(".booking-item")
         for (const el of items) {
             const arrange_data = {
@@ -87,7 +107,6 @@ async function vto_scrape(browser, url, operadora, client_data){
                 hotel_title: await el.$eval('.booking-item-title', title => title.textContent),
                 score: await el.$$eval('.booking-item-rating ul li .fa-star', element => element.length),
                 hotel_details: 'Desconocido',
-                img_hotel : await el.$eval('.booking-item-img-wrap img', element => element.src),
                 cancelacion: 'Desconocido'
             }
             data.push(arrange_data);

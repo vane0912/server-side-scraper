@@ -53,6 +53,25 @@ async function checkhotel_scraper(browser, url, operadora, client_data){
         }
         await page.locator("#ver_precios").click()
         await page.waitForNavigation({waitUntil: 'networkidle0', timeout:60000})
+        
+        const meal_plan_type = await page.$$('.filter-category')
+        const labels_meal_plan = await meal_plan_type[3].$$eval('.textfiltros', labels => labels.map(label => label.textContent.toLowerCase()));
+        let type_filter;
+        client_data.type === 'Solo alojamiento' ? type_filter = 'Sin alimentos' : type_filter = client_data.type
+        for (let i = 0; i < labels_meal_plan.length; i++) {
+            if (labels_meal_plan[i].includes(type_filter.toLowerCase())) {
+                const labelElement = (await meal_plan_type[3].$$('label'))[i];
+                await labelElement.click();
+                await page.waitForSelector('.blockPage', {visible: true})
+                await page.waitForSelector('.blockPage', {hidden: true})
+                break
+            }
+            if(i + 1 == labels_meal_plan.length && !labels_meal_plan[i].includes(type_filter)){
+                console.log(labels_meal_plan[i].includes(type_filter))
+                return {'Error': 'Check hotel, no tiene habitaciones tipo ' + type_filter}
+            }
+        }
+
         if(await page.$('#pagenavi .paginator')){
             const paginator = await page.$('#pagenavi .paginator')
             const paginator_el = await paginator.$$eval('a', el => el.length)
@@ -73,8 +92,7 @@ async function checkhotel_scraper(browser, url, operadora, client_data){
                         price: await text[i].$$eval('.hotel--prices > p', price => price[1].textContent.trim()),
                         score: await text[i].$$eval('.fa-star:not(.hidden-print)', element => element.length),
                         hotel_title: await text[i].$eval('h3', h1 => h1.textContent.trim()),
-                        hotel_details: "Desconocido",
-                        img_hotel : await text[i].$eval('.img-responsive', element => element.src),
+                        hotel_details: client_data.type,
                         cancelacion: "Desconocido" 
                     }
                     data.push(arrange_data)
@@ -89,8 +107,7 @@ async function checkhotel_scraper(browser, url, operadora, client_data){
                     price: await text[i].$$eval('.hotel--prices > p', price => price[1].textContent.trim()),
                     score: await text[i].$$eval('.fa-star:not(.hidden-print)', element => element.length),
                     hotel_title: await text[i].$eval('h3', h1 => h1.textContent.trim()),
-                    hotel_details: "Desconocido",
-                    img_hotel : await text[i].$eval('.img-responsive', element => element.src),
+                    hotel_details: client_data.type,
                     cancelacion: "Desconocido" 
                 }
                 data.push(arrange_data)

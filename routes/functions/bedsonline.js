@@ -67,7 +67,7 @@ async function bedsonline_scraper(browser, url, operadora, client_data){
         await page.$eval('.travellers-dropdown .hb-raised-button', element => element.click())
         await page.locator('::-p-xpath(//button[@data-qa="btn_search_stay_themepark"])').click()
         await page.waitForSelector('.loader__main', {visible: true})
-        await page.waitForSelector('.loader__main', {hidden: true, timeout: 0})
+        await page.waitForSelector('.loader__main', {hidden: true, timeout: 100000})
         await page.waitForSelector('::-p-xpath(//hb-tree[@data-qa="filter_checkbox"])')
         
         const get_filter = await page.$$('::-p-xpath(//hb-tree[@data-qa="filter_checkbox"])')
@@ -75,18 +75,18 @@ async function bedsonline_scraper(browser, url, operadora, client_data){
         if(see_more_filter.length > 0){
             await see_more_filter[0].click()
         }
-        const filters_checkboxes = await get_filter[0].$$eval('.checkbox-filter .hb-checkbox__label', labels => labels.map(label => label.textContent))
+        const filters_checkboxes = await get_filter[0].$$eval('.checkbox-filter .hb-checkbox__label', labels => labels.map(label => label.textContent.toLowerCase()))
         let typevalue;
         client_data.type === 'Solo alojamiento' ? typevalue = 'Sólo habitación (hoteles)' : typevalue = client_data.type
         for (let i = 0; i < filters_checkboxes.length; i++) {
-            if (filters_checkboxes[i].includes(typevalue)) {
+            if (filters_checkboxes[i].includes(typevalue.toLowerCase())) {
                 const labelElement = (await get_filter[0].$$('label'))[i];
                 await labelElement.click();
                 await page.waitForSelector('clientb2b-front-skeleton-action-box', {visible: true})
                 await page.waitForSelector('clientb2b-front-skeleton-action-box', { hidden: true });
                 break
             }
-            if(i + 1 == filters_checkboxes.length && !filters_checkboxes[i].includes(typevalue)){
+            if(i + 1 == filters_checkboxes.length && !filters_checkboxes[i].includes(typevalue.toLowerCase())){
                 console.log(filters_checkboxes[i].includes(typevalue))
                 return {'Error': 'Bedsonline, no tiene habitaciones tipo ' + typevalue}
             }
