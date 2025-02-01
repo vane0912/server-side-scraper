@@ -11,32 +11,32 @@ const urls = [
     //    url: 'https://vtoreservaciones.com/Hotel/Hotel.aspx',
     //    funct: vto_func
     //},
-    {
-        operadora: 'Regio',
-        url: 'https://b2b.regio.travel/home',
-        funct: regio_func
-    },
+    //{
+    //    operadora: 'Regio',
+    //    url: 'https://b2b.regio.travel/home',
+    //    funct: regio_func
+    //},
     //https://vtoreservaciones.com/Hotel/Hotel.aspx
-    {
-        operadora: 'Check Hotel',
-        url: 'https://checkhotel.mx/',
-        funct: checkhotel_func
-    },
+    //{
+    //    operadora: 'Check Hotel',
+    //    url: 'https://checkhotel.mx/',
+    //    funct: checkhotel_func
+    //},
     {
         operadora: 'Bedsonline',
         url: 'https://app.bedsonline.com/main',
         funct: bedsonline_func
     },
-    {
-        operadora: 'Azabache',
-        url: 'https://azabache.paquetedinamico.com/login.xhtml?microsite=azabache&keepurl=true&url=%2Fhome',
-        funct: azabache_func
-    },
-    {   
-        operadora: 'OLR',
-        url: 'https://motor.olrmayorista.com/home?tripType=ONLY_HOTEL',
-        funct: olr_func
-    },
+    //{
+    //    operadora: 'Azabache',
+    //    url: 'https://azabache.paquetedinamico.com/login.xhtml?microsite=azabache&keepurl=true&url=%2Fhome',
+    //    funct: azabache_func
+    //},
+    //{   
+    //    operadora: 'OLR',
+    //    url: 'https://motor.olrmayorista.com/home?tripType=ONLY_HOTEL',
+    //    funct: olr_func
+    //},
     //{
     //    operadora: 'Ruta Maya',
     //    url: 'https://www.rutamayatravel.com/sur4/user/login.html'

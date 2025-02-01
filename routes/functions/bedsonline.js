@@ -45,9 +45,13 @@ async function bedsonline_scraper(url, operadora, client_data){
         await page.waitForSelector(".hb-dropdown__wrapper", {visible: true})
         await page.waitForSelector(".fts-dropdown__fts", {visible: true})
         await page.$$eval(".fts-dropdown__fts", el => el[0].click())
-        const date_inputs = await page.$$('.hb-date-picker-input__field input')
-        await date_inputs[0].type(client_data.checkin.slice(8, 10) + '/' + client_data.checkin.slice(5, 7) + '/' + client_data.checkin.slice(0, 4))
-        await date_inputs[1].type(client_data.checkout.slice(8, 10) + '-' + client_data.checkout.slice(5, 7) + '-' + client_data.checkout.slice(0, 4))
+
+        const date_start = page.locator('::-p-xpath(//input[@formcontrolname="init"])')
+        await date_start.fill(client_data.checkin.slice(8, 10) + '/' + client_data.checkin.slice(5, 7) + '/' + client_data.checkin.slice(0, 4))
+        await delay(4000)
+        const date_end = page.locator('::-p-xpath(//input[@formcontrolname="end"])')
+        await date_end.fill(client_data.checkout.slice(8, 10) + '/' + client_data.checkout.slice(5, 7) + '/' + client_data.checkout.slice(0, 4))
+
         await page.$$eval('.cdk-text-field-autofill-monitored', el => el[1].click())
         await page.waitForSelector(".travellers-dropdown__more", {visible: true})
         if(client_data.room_numbers > 1){
@@ -114,41 +118,34 @@ async function bedsonline_scraper(url, operadora, client_data){
                 await see_more[0].click()
                 await delay(2000)
             }else{
-                await page.waitForSelector('.hb-card__body', {visible: true})
-                const text = await page.$$('.hb-card__body')
-                for(let i = 0; i < text.length; i++){
-                    const arrange_data = {
-                        operadora: 'Bedsonline',
-                        price: await text[i].$eval('::-p-xpath(//span[@class="tooltip-markup-commission__price__container__integer"])', price => price.textContent.trim()),
-                        score: await text[i].$$eval('.hb-base-icon-star', element => element.length),
-                        hotel_title: await text[i].$eval('::-p-xpath(//span[@class="card-content-header__name__title"])', h1 => h1.textContent.trim()),
-                        hotel_details: await text[i].$$eval('.card-price__product__price__room-info__group__code', element => element.length) === 0 ? typevalue : await text[i].$eval('.card-price__product__price__room-info__group__code', (h1) => {
-                            switch(h1.textContent.trim()){
-                                case 'SH':
-                                    return 'Solo habitación'
-                                case 'TI':
-                                    return 'Todo incluido'
-                                case 'AD':
-                                    return 'Alojamiento y desayuno'
-                                case 'DC':
-                                    return 'Desayuno continental'
-                                case 'MP':
-                                    return 'Media pension'
-                                case 'PC':
-                                    return 'Pension completa'
-                                case 'DB':
-                                    return 'Desayuno buffet'
-                                default:
-                                    return h1.textContent.trim()
-                            }
-                        }),
-                        cancelacion : await text[i].$$eval('.card-price__product__cancellation .card-price__product__detail span', cancel => cancel.length > 0 ? cancel[0].textContent : 'Desconocido')  
-                    }
-                    data.push(arrange_data)
-                }
-                break;
+                await delay(3000)
+                break
             }
         }
+        await page.waitForSelector('.hb-card__body', {visible: true})
+        const text = await page.$$('clientb2b-front-feature-card-layout')
+        await Promise.all(text.map(async (el) => {
+            const arrange_data = {
+                operadora: 'Bedsonline',
+                price: await el.$eval('.tooltip-markup-commission__price__container__integer', price => price.textContent.trim()),
+                score: (await el.$$('.hb-base-icon-star')).length,
+                hotel_title: await el.$eval('.card-content-header__name__title', h1 => h1.textContent.trim()),
+                hotel_details: await el.$eval('.card-price__product__price__room-info__group__code', (h1) => {
+                    switch (h1.textContent.trim()) {
+                        case 'SH': return 'Solo habitación';
+                        case 'TI': return 'Todo incluido';
+                        case 'AD': return 'Alojamiento y desayuno';
+                        case 'DC': return 'Desayuno continental';
+                        case 'MP': return 'Media pension';
+                        case 'PC': return 'Pension completa';
+                        case 'DB': return 'Desayuno buffet';
+                        default: return h1.textContent.trim();
+                    }
+                }).catch(() => typevalue), // Fallback to `typevalue` if the selector is not found
+                cancelacion: await el.$eval('.card-price__product__cancellation .card-price__product__detail span', cancel => cancel.textContent.trim()).catch(() => 'Desconocido')
+            };
+            data.push(arrange_data);
+        }));
         await browser.close()
         return data
     }
