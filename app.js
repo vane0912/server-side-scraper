@@ -1,5 +1,4 @@
 const express = require('express');
-const puppeteer = require('puppeteer');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const { createServer } = require('node:http');
@@ -31,30 +30,14 @@ io.on('connection', async (socket) => {
     const data = JSON.parse(msg);
     let messagesSent = 0;
     try {
-      const browser = await puppeteer.launch({
-        headless: true,
-        args: [
-          '--no-sandbox',
-          '--disable-setuid-sandbox',
-          '--disable-dev-shm-usage',
-          '--disable-session-crashed-bubble',
-          '--disable-accelerated-2d-canvas',
-          '--no-first-run',
-          '--no-zygote',
-          '--single-process',
-          '--noerrdialogs',
-          '--disable-gpu',
-        ],
-      });
-      for (const url of urls) {
-        const results = await url.funct(browser, url.url, url.operadora, data);
+      urls.forEach(async (url) =>{
+        const results = await url.funct(url.url, url.operadora, data);
         io.emit('message', results);
         messagesSent++;
         if (messagesSent === urls.length) {
-          await browser.close()
           io.disconnectSockets();
         }
-      }
+      })
     } catch (error) {
       io.emit('message', results);
       io.disconnectSockets();

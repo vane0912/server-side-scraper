@@ -1,10 +1,25 @@
-const fs = require('fs');
+const puppeteer = require('puppeteer');
 function delay(time) {
     return new Promise(function(resolve) { 
         setTimeout(resolve, time)
     });
 }
-async function checkhotel_scraper(browser, url, operadora, client_data){
+async function checkhotel_scraper(url, operadora, client_data){
+    const browser = await puppeteer.launch({
+        headless: true,
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-session-crashed-bubble',
+          '--disable-accelerated-2d-canvas',
+          '--no-first-run',
+          '--no-zygote',
+          '--single-process',
+          '--noerrdialogs',
+          '--disable-gpu',
+        ],
+    });
     const page = await browser.newPage();
     await page.setRequestInterception(true);
     page.on('request', (request) => {
@@ -67,7 +82,7 @@ async function checkhotel_scraper(browser, url, operadora, client_data){
                 break
             }
             if(i + 1 == labels_meal_plan.length && !labels_meal_plan[i].includes(type_filter)){
-                console.log(labels_meal_plan[i].includes(type_filter))
+                await browser.close();
                 return {'Error': 'Check hotel, no tiene habitaciones tipo ' + type_filter}
             }
         }
@@ -113,11 +128,11 @@ async function checkhotel_scraper(browser, url, operadora, client_data){
                 data.push(arrange_data)
             }
         }
-        await page.close();
+        await browser.close();
         return data
     }
     catch(err){
-        await page.close();
+        await browser.close();
         console.log(err)
         return {'Error': 'Check Hotel'}
     }

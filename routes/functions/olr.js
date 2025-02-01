@@ -1,3 +1,4 @@
+const puppeteer = require('puppeteer');
 const authorization_gmail = require('./authentication')
 const getMessage = require('./get_messages');
 const fs = require('fs');
@@ -7,7 +8,22 @@ function delay(time) {
         setTimeout(resolve, time)
     });
 }
-async function olr_scraper(browser, url, operadora, client_data){
+async function olr_scraper(url, operadora, client_data){
+    const browser = await puppeteer.launch({
+        headless: true,
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-session-crashed-bubble',
+          '--disable-accelerated-2d-canvas',
+          '--no-first-run',
+          '--no-zygote',
+          '--single-process',
+          '--noerrdialogs',
+          '--disable-gpu',
+        ],
+    });
     const page = await browser.newPage();
     await page.setRequestInterception(true);
 
@@ -191,11 +207,11 @@ async function olr_scraper(browser, url, operadora, client_data){
                 return data.push(arrange_data)
             }));
         }
-        await page.close();
+        await browser.close();
         return data
     }
     catch(err){
-        await page.close();
+        await browser.close();
         console.log(err)
         return {'Error': 'OLR'}
     }

@@ -1,9 +1,25 @@
+const puppeteer = require('puppeteer');
 function delay(time) {
     return new Promise(function(resolve) { 
         setTimeout(resolve, time)
     });
 }
-async function bedsonline_scraper(browser, url, operadora, client_data){
+async function bedsonline_scraper(url, operadora, client_data){
+    const browser = await puppeteer.launch({
+        headless: true,
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-session-crashed-bubble',
+          '--disable-accelerated-2d-canvas',
+          '--no-first-run',
+          '--no-zygote',
+          '--single-process',
+          '--noerrdialogs',
+          '--disable-gpu',
+        ],
+    });
     const page = await browser.newPage();
     await page.setRequestInterception(true);
     page.on('request', (request) => {
@@ -87,7 +103,7 @@ async function bedsonline_scraper(browser, url, operadora, client_data){
                 break
             }
             if(i + 1 == filters_checkboxes.length && !filters_checkboxes[i].includes(typevalue.toLowerCase())){
-                console.log(filters_checkboxes[i].includes(typevalue))
+                await browser.close()
                 return {'Error': 'Bedsonline, no tiene habitaciones tipo ' + typevalue}
             }
         }
@@ -133,11 +149,11 @@ async function bedsonline_scraper(browser, url, operadora, client_data){
                 break;
             }
         }
-        await page.close();
+        await browser.close()
         return data
     }
     catch(err){
-        await page.close();
+        await browser.close()
         console.log(err)
         return {'Error': 'Bedsonline'}
     }
