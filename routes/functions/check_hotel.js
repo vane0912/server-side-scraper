@@ -27,7 +27,7 @@ async function checkhotel_scraper(browser, url, operadora, client_data){
         
         await page.waitForSelector('.send', { visible: true});
         await page.$eval('.send', element => element.click())
-        await page.waitForNavigation({waitUntil: 'networkidle0', timeout:0})
+        await page.waitForNavigation({waitUntil: 'networkidle0', timeout:100000})
         
         await page.locator('.swal-button--confirm').click()
         await page.waitForSelector('#destino', {visible: true})
