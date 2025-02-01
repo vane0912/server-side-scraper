@@ -48,7 +48,7 @@ async function bedsonline_scraper(url, operadora, client_data){
 
         const date_start = page.locator('::-p-xpath(//input[@formcontrolname="init"])')
         await date_start.fill(client_data.checkin.slice(8, 10) + '/' + client_data.checkin.slice(5, 7) + '/' + client_data.checkin.slice(0, 4))
-        await delay(4000)
+        await delay(2000)
         const date_end = page.locator('::-p-xpath(//input[@formcontrolname="end"])')
         await date_end.fill(client_data.checkout.slice(8, 10) + '/' + client_data.checkout.slice(5, 7) + '/' + client_data.checkout.slice(0, 4))
 
@@ -66,6 +66,7 @@ async function bedsonline_scraper(url, operadora, client_data){
             if(client_data.rooms_details[i].adults > 2){
                 for(let adult = 0; adult < client_data.rooms_details[i].adults - 2; adult++){
                     await get_modal[i + i].$$eval('hb-form-field hb-form-suffix .hb-button-base', element => element[0].click())
+                    await delay(2000)
                 }
             }
             if(client_data.rooms_details[i].adults < 2){
