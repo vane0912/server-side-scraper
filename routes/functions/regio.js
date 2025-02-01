@@ -28,7 +28,6 @@ async function regio_scraper(browser, url, operadora, client_data){
     await page.setViewport({width: 1480, height: 1024});
 
     try{
-        /*
         await page.waitForSelector('.login-email-input', {timeout: 0});
         await page.type('.login-email-input', 'DavidG');
 
@@ -44,12 +43,14 @@ async function regio_scraper(browser, url, operadora, client_data){
         await page.waitForSelector('.dev-two-validation-input', {visible: true})
         await page.type('.dev-two-validation-input', get_two_step)
         await page.locator('.signin-button').click()
-
-        await page.waitForSelector('.c-modal-cookies-consent', { visible: true })
-        await page.locator('.c-modal-cookies-consent .dev-accept-all').click()
         
         await page.waitForNavigation({waitUntil: 'domcontentloaded', timeout: 0})
-        */
+        
+        //if(page.locator('.c-modal-cookies-consent .dev-accept-all')){
+        //    await page.waitForSelector('.c-modal-cookies-consent', { visible: true })
+        //    await page.locator('.c-modal-cookies-consent .dev-accept-all').click()
+        //    await page.waitForNavigation({waitUntil: 'domcontentloaded', timeout: 0})
+        //}
 
         await page.waitForSelector('::-p-xpath(//input[@data-p-label="Destino"])', { visible: true })
         await page.locator('::-p-xpath(//input[@data-p-label="Destino"])').fill(client_data.destiny)

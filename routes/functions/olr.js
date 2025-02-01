@@ -151,7 +151,6 @@ async function olr_scraper(browser, url, operadora, client_data){
                             score : await el.$$eval('.c-hotel-status__category.u-display--block .c-hotel-status__star:not(.hidden)', element => element.length),
                             hotel_details : await el.$eval('.c-extended__selected-combination .o-group--small span', room => room.textContent.trim().charAt(0).toUpperCase() + room.textContent.trim().slice(1).toLowerCase()),
                             price: await el.$eval('.c-price__primary', price => price.textContent.trim()),
-                            url: await el.$eval('.dev-open-hotel', link => link.getAttribute('href').replace(/0$/,"1")),
                             cancelacion: cancelacion ? await el.$eval('.c-extended__selected-combination .clr--success span', cancelation_txt => cancelation_txt.textContent.trim()) : "Sin Cancelacion gratis"
                         }
                         return data.push(arrange_data)
@@ -167,10 +166,8 @@ async function olr_scraper(browser, url, operadora, client_data){
                             score : await el.$$eval('.c-hotel-status__category.u-display--block .c-hotel-status__star:not(.hidden)', element => element.length),
                             hotel_details : await el.$eval('.c-extended__selected-combination .o-group--small span', room => room.textContent.trim().charAt(0).toUpperCase() + room.textContent.trim().slice(1).toLowerCase()),
                             price: await el.$eval('.c-price__primary', price => price.textContent.trim()),
-                            url: await el.$eval('.dev-open-hotel', link => link.getAttribute('href').replace(/0$/,"1")),
                             cancelacion: cancelacion ? await el.$eval('.c-extended__selected-combination .clr--success span', cancelation_txt => cancelation_txt.textContent.trim()) : "Sin Cancelacion gratis"
                         }
-                        console.log(await el.$eval('#openHotel5', link => link.getAttribute('href').replace(/0$/,"1")))
                         return data.push(arrange_data)
                     }));
 
@@ -189,7 +186,6 @@ async function olr_scraper(browser, url, operadora, client_data){
                     score : await el.$$eval('.c-hotel-status__category.u-display--block .c-hotel-status__star:not(.hidden)', element => element.length),
                     hotel_details : await el.$eval('.c-extended__selected-combination .o-group--small span', room => room.textContent.trim().charAt(0).toUpperCase() + room.textContent.trim().slice(1).toLowerCase()),
                     price: await el.$eval('.c-price__primary', price => price.textContent.trim()),
-                    url: await el.$eval('.dev-open-hotel', link => link.getAttribute('href').replace(/0$/,"1")),
                     cancelacion: cancelacion ? await el.$eval('.c-extended__selected-combination .clr--success span', cancelation_txt => cancelation_txt.textContent.trim()) : "Sin Cancelacion gratis"
                 }
                 return data.push(arrange_data)
