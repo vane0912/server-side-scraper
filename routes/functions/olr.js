@@ -55,27 +55,9 @@ async function olr_scraper(url, operadora, client_data){
         await page.waitForSelector('.c-modal-cookies-consent', { visible: true })
         await page.locator('.c-modal-cookies-consent .dev-accept-all').click()
         await page.waitForNavigation({waitUntil: 'domcontentloaded', timeout: 100000})
-        /*
-        await page.waitForSelector('.login-email-input', {timeout: 0});
-        await page.type('.login-email-input', 'DavidG');
 
-        await page.waitForSelector('.login-password-input');
-        await page.type('.login-password-input', 'Carlos14962'); 
-        await page.locator('.signin-button').click() 
-        await page.waitForSelector('.dev-sendUsingEmailAddress', {visible: true, timeout:0})
-        await page.$eval('.dev-sendUsingEmailAddress', el => el.click())
-        await page.waitForSelector('#twoStepValidationMailAlert', {visible: true, timeout:0})
-        
-        const authorize = await authorization_gmail()
-        const get_two_step = await getMessage(authorize)
-        await page.waitForSelector('.dev-two-validation-input', {visible: true})
-        await page.type('.dev-two-validation-input', get_two_step)
-        await page.locator('.signin-button').click()
-
-        await page.waitForSelector('.c-modal-cookies-consent', { visible: true })
-        await page.locator('.c-modal-cookies-consent .dev-accept-all').click()
-        
-        await page.waitForNavigation({waitUntil: 'domcontentloaded', timeout: 0})
+        const cookies = await page.cookies();
+        fs.writeFileSync('./Cookies/cookies-orl.json', JSON.stringify(cookies, null, 2));
         */
         await page.waitForSelector('::-p-xpath(//a[@id="j_id_6v:init-compositor-all:homeTab:0:onlyHotel"])')
         await page.locator('::-p-xpath(//a[@id="j_id_6v:init-compositor-all:homeTab:0:onlyHotel"])').click()

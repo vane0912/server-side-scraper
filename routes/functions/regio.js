@@ -146,6 +146,7 @@ async function regio_scraper(url, operadora, client_data){
                   return element ? element.classList.contains(className) : false;
                 }, '.ui-paginator-next', 'ui-state-disabled');
                 if (hasClass) {
+
                     const text = await page.$$('.ui-dataview-column', {timeout: 100000})
                     await Promise.all(text.map(async (el) => {
                         const cancelacion = await el.$('.c-extended__selected-combination .clr--success span')

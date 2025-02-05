@@ -44,7 +44,6 @@ io.on('connection', async (socket) => {
       console.error('Error during scraping:', error);
     } 
   });
-
   socket.on('disconnect', () => {
     console.log('A user disconnected');
   });
