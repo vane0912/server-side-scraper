@@ -36,6 +36,7 @@ async function olr_scraper(url, operadora, client_data){
       }
     });
     const data = []
+    let good_array
     if (fs.existsSync('./Cookies/cookies-orl.json')) {
         const cookies = JSON.parse(fs.readFileSync('./Cookies/cookies-orl.json'));
         await page.setCookie(...cookies);
@@ -59,6 +60,8 @@ async function olr_scraper(url, operadora, client_data){
         const cookies = await page.cookies();
         fs.writeFileSync('./Cookies/cookies-orl.json', JSON.stringify(cookies, null, 2));
         */
+        await page.waitForSelector('.dev-popup-disagree')
+        await page.locator('.dev-popup-disagree').click()
         await page.waitForSelector('::-p-xpath(//a[@id="j_id_6v:init-compositor-all:homeTab:0:onlyHotel"])')
         await page.locator('::-p-xpath(//a[@id="j_id_6v:init-compositor-all:homeTab:0:onlyHotel"])').click()
         await delay(3000)
@@ -105,6 +108,8 @@ async function olr_scraper(url, operadora, client_data){
         await page.waitForSelector('.dev-incremental-completed', { visible: true, timeout: 100000 });
         const hotel_label_wraper = await page.$('#accomodationType')
 
+        let resolved = false;
+
         const labels = await hotel_label_wraper.$$eval('label', labels => labels.map(label => label.textContent));
         for (let i = 0; i < labels.length; i++) {
             if (labels[i] === 'Hotel') {
@@ -116,7 +121,7 @@ async function olr_scraper(url, operadora, client_data){
         }
         const meal_plan_type = await page.$('#mealPlanFilter')
         const labels_meal_plan = await meal_plan_type.$$eval('label', labels => labels.map(label => label.textContent.toLowerCase()));
-        
+
         for (let i = 0; i < labels_meal_plan.length; i++) {
             if (labels_meal_plan[i].includes(client_data.type.toLowerCase())) {
                 const labelElement = (await meal_plan_type.$$('label'))[i];
@@ -142,32 +147,48 @@ async function olr_scraper(url, operadora, client_data){
                 if (hasClass) {
                     const text = await page.$$('.ui-dataview-column', {timeout: 100000})
                     await Promise.all(text.map(async (el) => {
-                        const cancelacion = await el.$('.c-extended__selected-combination .clr--success span')
+                        const cancelacion =  await el.$('.c-extended__selected-combination .clr--success span')
                         const arrange_data = {
                             operadora: 'OLR',
                             hotel_title :  await el.$eval('.dev-hotel-title', h1 => h1.textContent.trim()),
                             score : await el.$$eval('.c-hotel-status__category.u-display--block .c-hotel-status__star:not(.hidden)', element => element.length),
                             hotel_details : await el.$eval('.c-extended__selected-combination .o-group--small span', room => room.textContent.trim().charAt(0).toUpperCase() + room.textContent.trim().slice(1).toLowerCase()),
                             price: await el.$eval('.c-price__primary', price => price.textContent.trim()),
+                            link: await el.$eval(".dev-open-hotel", a => a.href.split("/")[4]),
                             cancelacion: cancelacion ? await el.$eval('.c-extended__selected-combination .clr--success span', cancelation_txt => cancelation_txt.textContent.trim()) : "Sin Cancelacion gratis"
                         }
                         return data.push(arrange_data)
                     }));
+                    await page.$eval('.ui-dataview-column .dev-open-hotel', el => el.removeAttribute('target'))
+                    await page.$eval('.ui-dataview-column .dev-open-hotel', el => el.click())
+                    await page.waitForNavigation({ waitUntil: 'networkidle2' });
+                    const product_id = page.url().split("=")[1]
+                    good_array = data.map((x) => {
+                        return  {...x, link: "https://motor.olrmayorista.com/accommodation/" + x.link + "/available/1?tripId=" + product_id}
+                    });
                     break;
                 } else {
                     const text = await page.$$('.ui-dataview-column', {timeout: 100000})
                     await Promise.all(text.map(async (el) => {
-                    const cancelacion =  await el.$('.c-extended__selected-combination .clr--success span')
+                        const cancelacion =  await el.$('.c-extended__selected-combination .clr--success span')
                         const arrange_data = {
                             operadora: 'OLR',
                             hotel_title :  await el.$eval('.dev-hotel-title', h1 => h1.textContent.trim()),
                             score : await el.$$eval('.c-hotel-status__category.u-display--block .c-hotel-status__star:not(.hidden)', element => element.length),
                             hotel_details : await el.$eval('.c-extended__selected-combination .o-group--small span', room => room.textContent.trim().charAt(0).toUpperCase() + room.textContent.trim().slice(1).toLowerCase()),
                             price: await el.$eval('.c-price__primary', price => price.textContent.trim()),
+                            link: await el.$eval(".dev-open-hotel", a => a.href.split("/")[4]),
                             cancelacion: cancelacion ? await el.$eval('.c-extended__selected-combination .clr--success span', cancelation_txt => cancelation_txt.textContent.trim()) : "Sin Cancelacion gratis"
                         }
                         return data.push(arrange_data)
                     }));
+                    await page.$eval('.ui-dataview-column .dev-open-hotel', el => el.removeAttribute('target'))
+                    await page.$eval('.ui-dataview-column .dev-open-hotel', el => el.click())
+                    await page.waitForNavigation({ waitUntil: 'networkidle2' });
+                    const product_id = page.url().split("=")[1]
+                    good_array = data.map((x) => {
+                        return  {...x, link: "https://motor.olrmayorista.com/accommodation/" + x.link + "/available/1?tripId=" + product_id}
+                    });
 
                     await page.waitForSelector('.ui-paginator-next', { timeout: 10000, visible: 'true' });
                     await page.$eval('.ui-paginator-next', el => el.click())
@@ -184,13 +205,21 @@ async function olr_scraper(url, operadora, client_data){
                     score : await el.$$eval('.c-hotel-status__category.u-display--block .c-hotel-status__star:not(.hidden)', element => element.length),
                     hotel_details : await el.$eval('.c-extended__selected-combination .o-group--small span', room => room.textContent.trim().charAt(0).toUpperCase() + room.textContent.trim().slice(1).toLowerCase()),
                     price: await el.$eval('.c-price__primary', price => price.textContent.trim()),
+                    link: await el.$eval(".dev-open-hotel", a => a.href.split("/")[4]),
                     cancelacion: cancelacion ? await el.$eval('.c-extended__selected-combination .clr--success span', cancelation_txt => cancelation_txt.textContent.trim()) : "Sin Cancelacion gratis"
                 }
                 return data.push(arrange_data)
             }));
+            await page.$eval('.ui-dataview-column .dev-open-hotel', el => el.removeAttribute('target'))
+            await page.$eval('.ui-dataview-column .dev-open-hotel', el => el.click())
+            await page.waitForNavigation({ waitUntil: 'networkidle2' });
+            const product_id = page.url().split("=")[1]
+            good_array = data.map((x) => {
+                return  {...x, link: "https://motor.olrmayorista.com/accommodation/" + x.link + "/available/1?tripId=" + product_id}
+            });
         }
         await browser.close();
-        return data
+        return good_array
     }
     catch(err){
         await browser.close();
