@@ -1,2 +1,8 @@
 [phases.setup]
-nixPkgs = ["ubuntu2204"]
+nixPkgs = ["libnss3", "libgbm", "chromium"]
+
+[phases.install]
+cmds = ["npm install"]
+
+[phases.build]
+cmds = ["npm run build"]
