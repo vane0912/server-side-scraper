@@ -36,6 +36,7 @@ async function regio_scraper(url, operadora, client_data){
       }
     });
     const data = []
+    let good_array
     if (fs.existsSync('./Cookies/cookies-regio.json')) {
         const cookies = JSON.parse(fs.readFileSync('./Cookies/cookies-regio.json'));
         await page.setCookie(...cookies);
@@ -44,23 +45,27 @@ async function regio_scraper(url, operadora, client_data){
     await page.setViewport({width: 1480, height: 1024});
 
     try{
-        await page.waitForSelector('.login-email-input', {timeout: 0});
-        await page.type('.login-email-input', 'DavidG');
+        if(await page.$$('::-p-xpath(//input[@data-p-label="Destino"])').length == 0){
+            await page.waitForSelector('.login-email-input', {timeout: 0});
+            await page.type('.login-email-input', 'DavidG');
 
-        await page.waitForSelector('.login-password-input');
-        await page.type('.login-password-input', 'Carlos14962'); 
-        await page.locator('.signin-button').click() 
-        await page.waitForSelector('.dev-sendUsingEmailAddress', {visible: true, timeout:0})
-        await page.$eval('.dev-sendUsingEmailAddress', el => el.click())
-        await page.waitForSelector('#twoStepValidationMailAlert', {visible: true, timeout:0})
-        
-        const authorize = await authorization_gmail()
-        const get_two_step = await getMessage(authorize)
-        await page.waitForSelector('.dev-two-validation-input', {visible: true})
-        await page.type('.dev-two-validation-input', get_two_step)
-        await page.locator('.signin-button').click()
-        
-        await page.waitForNavigation({waitUntil: 'domcontentloaded', timeout: 0})
+            await page.waitForSelector('.login-password-input');
+            await page.type('.login-password-input', 'Carlos14962'); 
+            await page.locator('.signin-button').click() 
+            await page.waitForSelector('.dev-sendUsingEmailAddress', {visible: true, timeout:0})
+            await page.$eval('.dev-sendUsingEmailAddress', el => el.click())
+            await page.waitForSelector('#twoStepValidationMailAlert', {visible: true, timeout:0})
+            
+            const authorize = await authorization_gmail()
+            const get_two_step = await getMessage(authorize)
+            await page.waitForSelector('.dev-two-validation-input', {visible: true})
+            await page.type('.dev-two-validation-input', get_two_step)
+            await page.locator('.signin-button').click()
+            
+            await page.waitForNavigation({waitUntil: 'domcontentloaded', timeout: 0})
+            const cookies = await page.cookies();
+            fs.writeFileSync('./Cookies/cookies-regio.json', JSON.stringify(cookies, null, 2));
+        }
         
         //if(page.locator('.c-modal-cookies-consent .dev-accept-all')){
         //    await page.waitForSelector('.c-modal-cookies-consent', { visible: true })
@@ -146,36 +151,50 @@ async function regio_scraper(url, operadora, client_data){
                   return element ? element.classList.contains(className) : false;
                 }, '.ui-paginator-next', 'ui-state-disabled');
                 if (hasClass) {
-
                     const text = await page.$$('.ui-dataview-column', {timeout: 100000})
                     await Promise.all(text.map(async (el) => {
-                        const cancelacion = await el.$('.c-extended__selected-combination .clr--success span')
+                        const cancelacion =  await el.$('.c-extended__selected-combination .clr--success span')
                         const arrange_data = {
                             operadora: 'Regio',
                             hotel_title :  await el.$eval('.dev-hotel-title', h1 => h1.textContent.trim()),
                             score : await el.$$eval('.c-hotel-status__category.u-display--block .c-hotel-status__star:not(.hidden)', element => element.length),
                             hotel_details : await el.$eval('.c-extended__selected-combination .o-group--small span', room => room.textContent.trim().charAt(0).toUpperCase() + room.textContent.trim().slice(1).toLowerCase()),
                             price: await el.$eval('.c-price__primary', price => price.textContent.trim()),
+                            link: await el.$eval(".dev-open-hotel", a => a.href.split("/")[4]),
                             cancelacion: cancelacion ? await el.$eval('.c-extended__selected-combination .clr--success span', cancelation_txt => cancelation_txt.textContent.trim()) : "Sin Cancelacion gratis"
                         }
                         return data.push(arrange_data)
                     }));
+                    await page.$eval('.ui-dataview-column .dev-open-hotel', el => el.removeAttribute('target'))
+                    await page.$eval('.ui-dataview-column .dev-open-hotel', el => el.click())
+                    await page.waitForNavigation({ waitUntil: 'networkidle2' });
+                    const product_id = page.url().split("=")[1]
+                    good_array = data.map((x) => {
+                        return  {...x, link: "https://b2b.regio.travel/accommodation/" + x.link + "/available/1?tripId=" + product_id}
+                    });
                     break;
                 } else {
                     const text = await page.$$('.ui-dataview-column', {timeout: 100000})
                     await Promise.all(text.map(async (el) => {
-                    const cancelacion =  await el.$('.c-extended__selected-combination .clr--success span')
+                        const cancelacion =  await el.$('.c-extended__selected-combination .clr--success span')
                         const arrange_data = {
                             operadora: 'Regio',
                             hotel_title :  await el.$eval('.dev-hotel-title', h1 => h1.textContent.trim()),
                             score : await el.$$eval('.c-hotel-status__category.u-display--block .c-hotel-status__star:not(.hidden)', element => element.length),
                             hotel_details : await el.$eval('.c-extended__selected-combination .o-group--small span', room => room.textContent.trim().charAt(0).toUpperCase() + room.textContent.trim().slice(1).toLowerCase()),
                             price: await el.$eval('.c-price__primary', price => price.textContent.trim()),
+                            link: await el.$eval(".dev-open-hotel", a => a.href.split("/")[4]),
                             cancelacion: cancelacion ? await el.$eval('.c-extended__selected-combination .clr--success span', cancelation_txt => cancelation_txt.textContent.trim()) : "Sin Cancelacion gratis"
                         }
-
                         return data.push(arrange_data)
                     }));
+                    await page.$eval('.ui-dataview-column .dev-open-hotel', el => el.removeAttribute('target'))
+                    await page.$eval('.ui-dataview-column .dev-open-hotel', el => el.click())
+                    await page.waitForNavigation({ waitUntil: 'networkidle2' });
+                    const product_id = page.url().split("=")[1]
+                    good_array = data.map((x) => {
+                        return  {...x, link: "https://b2b.regio.travel/accommodation/" + x.link + "/available/1?tripId=" + product_id}
+                    });
 
                     await page.waitForSelector('.ui-paginator-next', { timeout: 10000, visible: 'true' });
                     await page.$eval('.ui-paginator-next', el => el.click())
@@ -192,13 +211,22 @@ async function regio_scraper(url, operadora, client_data){
                     score : await el.$$eval('.c-hotel-status__category.u-display--block .c-hotel-status__star:not(.hidden)', element => element.length),
                     hotel_details : await el.$eval('.c-extended__selected-combination .o-group--small span', room => room.textContent.trim().charAt(0).toUpperCase() + room.textContent.trim().slice(1).toLowerCase()),
                     price: await el.$eval('.c-price__primary', price => price.textContent.trim()),
+                    link: await el.$eval(".dev-open-hotel", a => a.href.split("/")[4]),
                     cancelacion: cancelacion ? await el.$eval('.c-extended__selected-combination .clr--success span', cancelation_txt => cancelation_txt.textContent.trim()) : "Sin Cancelacion gratis"
                 }
                 return data.push(arrange_data)
             }));
+            await page.$eval('.ui-dataview-column .dev-open-hotel', el => el.removeAttribute('target'))
+            await page.$eval('.ui-dataview-column .dev-open-hotel', el => el.click())
+            await page.waitForNavigation({ waitUntil: 'networkidle2' });
+            const product_id = page.url().split("=")[1]
+            await delay(8000)
+            good_array = data.map((x) => {
+                return  {...x, link: "https://b2b.regio.travel/accommodation/" + x.link + "/available/1?tripId=" + product_id}
+            });
         }
         await browser.close();
-        return data
+        return good_array
     }
     catch(err){
         await browser.close();
