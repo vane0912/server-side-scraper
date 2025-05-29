@@ -27,11 +27,11 @@ const urls = [
     //    url: 'https://app.bedsonline.com/main',
     //    funct: bedsonline_func
     //},
-    //{
-    //    operadora: 'Azabache',
-    //    url: 'https://azabache.paquetedinamico.com/login.xhtml?microsite=azabache&keepurl=true&url=%2Fhome',
-    //    funct: azabache_func
-    //},
+    {
+        operadora: 'Azabache',
+        url: 'https://azabache.paquetedinamico.com/login.xhtml?microsite=azabache&keepurl=true&url=%2Fhome',
+        funct: azabache_func
+    },
     {   
         operadora: 'OLR',
         url: 'https://motor.olrmayorista.com/home?tripType=ONLY_HOTEL',
