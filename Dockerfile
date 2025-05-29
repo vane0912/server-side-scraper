@@ -55,9 +55,5 @@ COPY . .
 # Expone el puerto que usa tu app (ajústalo si usas otro)
 EXPOSE 3000
 
-# Establece variable de entorno para Puppeteer (evita errores de sandbox)
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
-
 # Si usas Chromium empaquetado por Puppeteer, usa este CMD:
 CMD ["npm", "start"]
