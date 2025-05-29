@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ["nss" "mesa"]
+nixPkgs = ["nss", "mesa"]
 
 [phases.install]
 cmds = ["npm install"]
