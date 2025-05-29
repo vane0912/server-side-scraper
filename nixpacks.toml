@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ["libnss3", "libgbm", "chromium"]
+nixPkgs = ["nss" "mesa"]
 
 [phases.install]
 cmds = ["npm install"]
