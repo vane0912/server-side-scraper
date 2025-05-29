@@ -1,8 +1,0 @@
-[phases.setup]
-nixPkgs = ["nss", "mesa"]
-
-[phases.install]
-cmds = ["npm install"]
-
-[phases.build]
-cmds = ["npm run build"]
