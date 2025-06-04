@@ -52,9 +52,6 @@ async function olr_scraper(url, operadora, client_data){
         await page.waitForSelector('.login-password-input');
         await page.type('.login-password-input', 'lore1202'); 
         await page.locator('.signin-button').click() 
-
-        await page.waitForSelector('.c-modal-cookies-consent', { visible: true })
-        await page.locator('.c-modal-cookies-consent .dev-accept-all').click()
         await page.waitForNavigation({waitUntil: 'domcontentloaded', timeout: 100000})
 
         const cookies = await page.cookies();
@@ -131,7 +128,7 @@ async function olr_scraper(url, operadora, client_data){
                 break
             }
             if(i + 1 == labels_meal_plan.length && !labels_meal_plan[i].includes(client_data.type.toLowerCase())){
-                console.log(labels_meal_plan[i].includes(client_data.type))
+                //console.log(labels_meal_plan[i].includes(client_data.type))
                 return {'Error': 'OLR, no tiene habitaciones tipo ' + client_data.type}
             }
         }
@@ -157,11 +154,11 @@ async function olr_scraper(url, operadora, client_data){
                             link: await el.$eval(".dev-open-hotel", a => a.href.split("/")[4]),
                             cancelacion: cancelacion ? await el.$eval('.c-extended__selected-combination .clr--success span', cancelation_txt => cancelation_txt.textContent.trim()) : "Sin Cancelacion gratis"
                         }
-                        return data.push(arrange_data)
+                        data.push(arrange_data)
                     }));
                     await page.$eval('.ui-dataview-column .dev-open-hotel', el => el.removeAttribute('target'))
                     await page.$eval('.ui-dataview-column .dev-open-hotel', el => el.click())
-                    await page.waitForNavigation({ waitUntil: 'networkidle2' });
+                    await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
                     const product_id = page.url().split("=")[1]
                     good_array = data.map((x) => {
                         return  {...x, link: "https://motor.olrmayorista.com/accommodation/" + x.link + "/available/1?tripId=" + product_id}
@@ -182,14 +179,6 @@ async function olr_scraper(url, operadora, client_data){
                         }
                         return data.push(arrange_data)
                     }));
-                    await page.$eval('.ui-dataview-column .dev-open-hotel', el => el.removeAttribute('target'))
-                    await page.$eval('.ui-dataview-column .dev-open-hotel', el => el.click())
-                    await page.waitForNavigation({ waitUntil: 'networkidle2' });
-                    const product_id = page.url().split("=")[1]
-                    good_array = data.map((x) => {
-                        return  {...x, link: "https://motor.olrmayorista.com/accommodation/" + x.link + "/available/1?tripId=" + product_id}
-                    });
-
                     await page.waitForSelector('.ui-paginator-next', { timeout: 10000, visible: 'true' });
                     await page.$eval('.ui-paginator-next', el => el.click())
                     await delay(4000)
@@ -212,7 +201,7 @@ async function olr_scraper(url, operadora, client_data){
             }));
             await page.$eval('.ui-dataview-column .dev-open-hotel', el => el.removeAttribute('target'))
             await page.$eval('.ui-dataview-column .dev-open-hotel', el => el.click())
-            await page.waitForNavigation({ waitUntil: 'networkidle2' });
+            await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
             const product_id = page.url().split("=")[1]
             good_array = data.map((x) => {
                 return  {...x, link: "https://motor.olrmayorista.com/accommodation/" + x.link + "/available/1?tripId=" + product_id}

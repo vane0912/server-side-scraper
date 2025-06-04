@@ -152,11 +152,11 @@ async function azabache_scraper(url, operadora, client_data){
                             link: await el.$eval(".dev-open-hotel", a => a.href.split("/")[4]),
                             cancelacion: cancelacion ? await el.$eval('.c-extended__selected-combination .clr--success span', cancelation_txt => cancelation_txt.textContent.trim()) : "Sin Cancelacion gratis"
                         }
-                        return data.push(arrange_data)
+                        data.push(arrange_data)
                     }));
                     await page.$eval('.ui-dataview-column .dev-open-hotel', el => el.removeAttribute('target'))
                     await page.$eval('.ui-dataview-column .dev-open-hotel', el => el.click())
-                    await page.waitForNavigation({ waitUntil: 'networkidle2' });
+                    await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
                     const product_id = page.url().split("=")[1]
                     good_array = data.map((x) => {
                         return  {...x, link: "https://azabache.paquetedinamico.com/accommodation/" + x.link + "/available/1?tripId=" + product_id}
@@ -177,14 +177,6 @@ async function azabache_scraper(url, operadora, client_data){
                         }
                         return data.push(arrange_data)
                     }));
-                    await page.$eval('.ui-dataview-column .dev-open-hotel', el => el.removeAttribute('target'))
-                    await page.$eval('.ui-dataview-column .dev-open-hotel', el => el.click())
-                    await page.waitForNavigation({ waitUntil: 'networkidle2' });
-                    const product_id = page.url().split("=")[1]
-                    good_array = data.map((x) => {
-                        return  {...x, link: "https://azabache.paquetedinamico.com/accommodation/" + x.link + "/available/1?tripId=" + product_id}
-                    });
-
                     await page.waitForSelector('.ui-paginator-next', { timeout: 10000, visible: 'true' });
                     await page.$eval('.ui-paginator-next', el => el.click())
                     await delay(4000)
@@ -208,9 +200,8 @@ async function azabache_scraper(url, operadora, client_data){
             }));
             await page.$eval('.ui-dataview-column .dev-open-hotel', el => el.removeAttribute('target'))
             await page.$eval('.ui-dataview-column .dev-open-hotel', el => el.click())
-            await delay(9000)
+            await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
             const product_id = page.url().split("=")[1]
-            await delay(8000)
             good_array = data.map((x) => {
                 return  {...x, link: "https://azabache.paquetedinamico.com/accommodation/" + x.link + "/available/1?tripId=" + product_id}
             });
